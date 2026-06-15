@@ -683,6 +683,30 @@
       padding: 10px;
       background: #fbfcfc;
     }
+    .modal-tabs {
+      display: flex;
+      gap: 6px;
+      margin: 0 0 12px;
+      border-bottom: 1px solid #e5e9ec;
+      padding-bottom: 8px;
+    }
+    .modal-tab {
+      height: 30px;
+      border: 1px solid #dfe7ea;
+      border-radius: 8px;
+      background: #ffffff;
+      color: #39474f;
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .modal-tab.active {
+      border-color: #93b4ff;
+      background: #eff6ff;
+      color: #2563eb;
+    }
     .detail-label {
       display: block;
       color: #6b7880;
@@ -1048,6 +1072,888 @@
       margin-top: 5px;
       font-weight: 500;
     }
+    .customer-page {
+      min-height: 100vh;
+      background: #f4f7f9;
+      color: #172026;
+      padding: 28px;
+    }
+    .customer-shell {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+    }
+    .customer-hero {
+      border: 1px solid #dfe7ea;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #eff6ff 0%, #ffffff 76%);
+      padding: 16px 18px;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+    }
+    .customer-kicker {
+      color: #2563eb;
+      font-size: 14px;
+      font-weight: 500;
+      margin: 0;
+    }
+    .customer-hero-head {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      margin: 0;
+    }
+    .customer-info-chip {
+      border: 1px solid #cfe0ff;
+      border-radius: 999px;
+      background: #ffffff;
+      color: #2563eb;
+      height: 30px;
+      padding: 0 11px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 6px 14px rgba(37, 99, 235, 0.08);
+    }
+    .customer-info-chip.inline {
+      height: 28px;
+      margin-left: 2px;
+      box-shadow: none;
+    }
+    .customer-title {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1.25;
+      font-weight: 600;
+      letter-spacing: 0;
+    }
+    .customer-title.editable {
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+      border-radius: 8px;
+      padding: 2px 4px;
+      margin-left: -4px;
+    }
+    .customer-title.editable:hover {
+      background: rgba(37, 99, 235, 0.08);
+      color: #1d4ed8;
+    }
+    .customer-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .customer-meta .badge {
+      height: 28px;
+      padding: 0 10px;
+      font-size: 12px;
+    }
+    .customer-section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 0 0 8px;
+    }
+    .customer-section-head h2 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      margin: 0;
+      color: #172026;
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .customer-section-head h2::after {
+      content: "";
+      height: 1px;
+      background: #dfe7ea;
+      flex: 1;
+    }
+    .customer-section-head p {
+      margin: 5px 0 0;
+      color: #6b7880;
+      font-size: 13px;
+    }
+    .customer-grants {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px;
+    }
+    .customer-grants.completed-scroll {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 8px;
+      scroll-snap-type: x proximity;
+      scrollbar-color: #dbe7f6 #f7faff;
+      scrollbar-width: thin;
+    }
+    .customer-grants.completed-scroll::-webkit-scrollbar {
+      height: 7px;
+    }
+    .customer-grants.completed-scroll::-webkit-scrollbar-track {
+      background: #f7faff;
+      border-radius: 999px;
+    }
+    .customer-grants.completed-scroll::-webkit-scrollbar-thumb {
+      background: #dbe7f6;
+      border-radius: 999px;
+    }
+    .customer-grants.completed-scroll::-webkit-scrollbar-thumb:hover {
+      background: #c9dcf4;
+    }
+    .customer-grants.completed-scroll .customer-grant-card {
+      flex: 0 0 260px;
+      scroll-snap-align: start;
+    }
+    .customer-work-area {
+      border: 1px solid #dfe7ea;
+      border-radius: 12px;
+      background: #ffffff;
+      padding: 12px 14px 14px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+    }
+    .customer-calendar-box {
+      border: 1px solid #dfe7ea;
+      border-radius: 12px;
+      background: #fbfcfc;
+      padding: 12px;
+      margin-top: 12px;
+    }
+    .customer-calendar-modal {
+      width: min(980px, calc(100vw - 32px));
+    }
+    .customer-schedule-modal {
+      width: min(520px, calc(100vw - 32px));
+    }
+    .customer-calendar-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .customer-calendar-head .customer-grant-section-title {
+      flex: 1;
+      margin: 0;
+    }
+    .customer-calendar-title {
+      margin: 0;
+      color: #172026;
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .customer-calendar-month {
+      color: #39474f;
+      font-size: 13px;
+      font-weight: 500;
+      min-width: 86px;
+      text-align: center;
+    }
+    .customer-calendar-nav {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .customer-calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 6px;
+    }
+    .customer-weekday {
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #7b8790;
+      font-size: 11px;
+      font-weight: 400;
+    }
+    .customer-calendar-day {
+      min-height: 82px;
+      border: 1px solid #dfe7ea;
+      border-radius: 8px;
+      background: #fbfcfc;
+      padding: 7px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .customer-calendar-day.out-month {
+      background: #f6f8f9;
+      color: #9aa6ac;
+    }
+    .customer-calendar-day.weekend,
+    .customer-weekday.weekend {
+      background: #f1f3f5;
+      color: #87929a;
+    }
+    .customer-calendar-day.today {
+      background: #f2f7ff;
+      border-color: #bfd3ff;
+      box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.1);
+    }
+    .customer-calendar-date {
+      color: #39474f;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .customer-deadline-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      min-width: 0;
+      color: #172026;
+      font-size: 11px;
+      line-height: 1.25;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .customer-deadline-item:hover .customer-deadline-title {
+      color: #2563eb;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .customer-deadline-label {
+      flex: 0 0 auto;
+      border-radius: 5px;
+      background: #e5e7eb;
+      color: #4b5563;
+      padding: 2px 5px;
+      font-size: 10px;
+      font-weight: 400;
+    }
+    .customer-deadline-title {
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .customer-manual-schedule {
+      border-radius: 6px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #172026;
+      padding: 4px 6px;
+      font-size: 11px;
+      line-height: 1.25;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .customer-grant-card {
+      border: 1px solid #dfe7ea;
+      border-radius: 10px;
+      background: #ffffff;
+      padding: 14px;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+    }
+    .customer-grant-card.ready-card {
+      background: #f8fafc;
+    }
+    .customer-grant-card.ready-card.deadline-soon {
+      border-color: #fecaca;
+      background: #fff5f5;
+    }
+    .customer-grant-card.result-card {
+      border-color: #d7e0e4;
+      background: #ffffff;
+    }
+    .customer-grant-card.builder-fixed {
+      border-color: #b8c4cc;
+    }
+    .customer-grant-top {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .customer-grant-side {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      flex: 0 0 auto;
+    }
+    .customer-card-dday {
+      color: #111827;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .customer-card-dday.urgent {
+      color: #ef4444;
+    }
+    .customer-grant-title {
+      margin: 0;
+      color: #111827;
+      font-size: 13px;
+      line-height: 1.35;
+      font-weight: 600;
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .customer-grant-title a {
+      color: inherit;
+      text-decoration: none;
+    }
+    .customer-grant-title a:hover {
+      color: #2563eb;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .customer-status {
+      height: 22px;
+      border: 1px solid #cfd8dc;
+      border-radius: 7px;
+      padding: 0 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #59676f;
+      background: #ffffff;
+      font-size: 11px;
+      font-weight: 400;
+      line-height: 1;
+    }
+    .customer-status.ready {
+      background: #172026;
+      border-color: #172026;
+      color: #ffffff;
+    }
+    .customer-status.done {
+      background: #e8f0ff;
+      border-color: #7da0ff;
+      color: #1d4ed8;
+    }
+    .customer-status.passed {
+      background: #fdf2f8;
+      border-color: #f9a8d4;
+      color: #be185d;
+    }
+    .customer-grant-section {
+      margin-top: 18px;
+    }
+    .customer-work-area .customer-grant-section:first-child {
+      margin-top: 0;
+    }
+    .customer-grant-section.list-section {
+      margin-top: 14px;
+    }
+    .customer-grant-section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 10px;
+      color: #172026;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .customer-title-text {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+    .customer-title-text.has-tip::before {
+      content: "합격한 지원사업을 체크해주세요. 결과가 ai 지원사업 추천에 반영됩니다.";
+      position: absolute;
+      left: 0;
+      bottom: calc(100% + 8px);
+      width: 260px;
+      border: 1px solid #cfd8dc;
+      border-radius: 8px;
+      background: #172026;
+      color: #ffffff;
+      padding: 9px 10px;
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.45;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(4px);
+      transition: opacity 0.14s ease, transform 0.14s ease, visibility 0.14s ease;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .customer-title-text.has-tip:hover::before {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .customer-grant-section-title::after {
+      content: "";
+      height: 1px;
+      background: #dfe7ea;
+      flex: 1;
+    }
+    .customer-result-row {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 7px;
+      margin-top: 12px;
+    }
+    .customer-result-row .customer-result-btn {
+      flex: 1 1 0;
+      padding: 0 6px;
+    }
+    .customer-result-btn {
+      height: 28px;
+      border: 1px solid #cfd8dc;
+      border-radius: 8px;
+      background: #ffffff;
+      color: #39474f;
+      padding: 0 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 400;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .customer-result-btn.active.document {
+      border-color: #7da0ff;
+      background: #e8f0ff;
+      color: #1d4ed8;
+    }
+    .customer-result-btn.active.final {
+      border-color: #f9a8d4;
+      background: #fdf2f8;
+      color: #be185d;
+    }
+    .result-chip {
+      height: 20px;
+      border: 1px solid #cfd8dc;
+      border-radius: 7px;
+      background: #ffffff;
+      color: #4b5563;
+      padding: 0 7px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 400;
+      line-height: 1;
+    }
+    .result-chip.document {
+      border-color: #7da0ff;
+      background: #e8f0ff;
+      color: #1d4ed8;
+    }
+    .result-chip.final {
+      border-color: #f9a8d4;
+      background: #fdf2f8;
+      color: #be185d;
+    }
+    .builder-chip {
+      height: 20px;
+      border: 1px solid #94a3b8;
+      border-radius: 7px;
+      background: #f8fafc;
+      color: #334155;
+      padding: 0 7px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 400;
+      line-height: 1;
+    }
+    .customer-remove-btn {
+      width: 22px;
+      height: 22px;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: #7b8790;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0;
+    }
+    .customer-remove-btn:hover {
+      background: #eef2f4;
+      color: #172026;
+    }
+    .customer-grant-info {
+      display: grid;
+      gap: 7px;
+      color: #39474f;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .customer-ready-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      margin-top: 10px;
+    }
+    .customer-ready-info {
+      flex: 1 1 auto;
+      min-width: 0;
+      color: #39474f;
+      font-size: 12px;
+      line-height: 28px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .customer-ready-done {
+      flex: 0 0 auto;
+      margin-left: auto;
+    }
+    .customer-grant-info span {
+      color: #7b8790;
+      font-size: 12px;
+      margin-right: 6px;
+    }
+    .customer-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 30px;
+      margin-top: 12px;
+      padding: 0 11px;
+      border-radius: 8px;
+      border: 1px solid #93b4ff;
+      color: #2563eb;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 500;
+      background: #f6f9ff;
+    }
+    .customer-add-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border-top: 1px solid #e5e9ec;
+    }
+    .customer-add-card {
+      border: 0;
+      border-bottom: 1px solid #e5e9ec;
+      border-radius: 0;
+      background: #ffffff;
+      padding: 0;
+      box-shadow: none;
+      display: grid;
+      grid-template-columns: 62px minmax(220px, 1fr) auto;
+      align-items: stretch;
+      gap: 0;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .customer-add-card:hover {
+      background: #fbfdff;
+    }
+    .customer-add-dday {
+      background: #eff6ff;
+      color: #1d4ed8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 14px 8px;
+    }
+    .customer-add-body {
+      min-width: 0;
+      padding: 13px 14px;
+    }
+    .customer-add-card h4 {
+      margin: 0;
+      color: #111827;
+      font-size: 14px;
+      line-height: 1.35;
+      font-weight: 500;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .customer-add-meta {
+      margin-top: 6px;
+      color: #2563eb;
+      font-size: 12px;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .customer-reco-chip {
+      display: inline-flex;
+      align-items: center;
+      height: 19px;
+      border-radius: 5px;
+      background: #eaf2ff;
+      color: #2563eb;
+      padding: 0 6px;
+      margin-right: 7px;
+      font-size: 11px;
+      font-weight: 600;
+      vertical-align: 1px;
+    }
+    .customer-add-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 6px;
+    }
+    .customer-add-tag {
+      height: 20px;
+      border-radius: 5px;
+      background: #eef4ff;
+      color: #2563eb;
+      padding: 0 6px;
+      display: inline-flex;
+      align-items: center;
+      font-size: 10px;
+      font-weight: 500;
+    }
+    .customer-add-btn {
+      height: 32px;
+      border: 1px solid #93b4ff;
+      border-radius: 8px;
+      background: #f6f9ff;
+      color: #2563eb;
+      padding: 0 10px;
+      margin: auto 12px auto 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .customer-more-btn {
+      height: 40px;
+      border: 0;
+      border-top: 1px solid #e5e9ec;
+      background: #fbfcfd;
+      color: #2563eb;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .customer-list-panel {
+      border: 1px solid #dfe7ea;
+      border-radius: 12px;
+      background: #ffffff;
+      overflow: hidden;
+    }
+    .customer-list-tabs {
+      display: flex;
+      gap: 28px;
+      padding: 18px 20px 12px;
+      border-bottom: 1px solid #edf1f3;
+      overflow-x: auto;
+    }
+    .customer-list-tab {
+      border: 0;
+      background: transparent;
+      color: #9aa3aa;
+      padding: 0;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .customer-list-tab.active {
+      color: #111827;
+      font-weight: 600;
+    }
+    .customer-list-search {
+      flex: 1 1 auto;
+      min-width: 160px;
+      height: 34px;
+      border: 1px solid #dfe5e8;
+      border-radius: 5px;
+      padding: 0 12px;
+      color: #172026;
+      font-size: 12px;
+      font-family: inherit;
+      background: #fbfcfc;
+    }
+    .customer-list-tools {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 20px 16px;
+    }
+    .customer-filter-pill,
+    .customer-filter-icon {
+      height: 34px;
+      border: 1px solid #dfe5e8;
+      border-radius: 8px;
+      background: #ffffff;
+      color: #172026;
+      padding: 0 11px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .customer-filter-pill {
+      min-width: 86px;
+    }
+    .customer-filter-icon {
+      width: 36px;
+      padding: 0;
+    }
+    .customer-filter-pill.active,
+    .customer-filter-icon.active {
+      border-color: #93b4ff;
+      background: #eff6ff;
+      color: #2563eb;
+    }
+    .customer-filter-menu {
+      position: absolute;
+      top: 54px;
+      right: 20px;
+      z-index: 20;
+      width: 160px;
+      border: 1px solid #dfe7ea;
+      border-radius: 10px;
+      background: #ffffff;
+      box-shadow: 0 16px 34px rgba(15, 23, 42, 0.14);
+      padding: 6px;
+    }
+    .customer-filter-option {
+      width: 100%;
+      height: 32px;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: #39474f;
+      font-size: 12px;
+      font-family: inherit;
+      text-align: left;
+      padding: 0 9px;
+      cursor: pointer;
+    }
+    .customer-filter-option.active,
+    .customer-filter-option:hover {
+      background: #eff6ff;
+      color: #2563eb;
+    }
+    @media (max-width: 760px) {
+      .customer-add-card {
+        grid-template-columns: 1fr;
+        align-items: start;
+      }
+      .customer-add-btn {
+        width: fit-content;
+      }
+    }
+    .customer-profile-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 8px;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(207, 216, 220, 0.85);
+    }
+    .customer-profile-item {
+      border: 1px solid #dfe7ea;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.74);
+      padding: 9px 10px;
+    }
+    .customer-profile-item span {
+      display: block;
+      color: #7b8790;
+      font-size: 11px;
+      margin-bottom: 4px;
+      font-weight: 400;
+    }
+    .customer-profile-item strong {
+      display: block;
+      color: #172026;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+    .profile-modal .modal {
+      max-height: 92vh;
+      overflow: auto;
+    }
+    .profile-intro {
+      margin: 0 0 14px;
+      color: #5f6d75;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .radio-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .radio-pill {
+      height: 36px;
+      border: 1px solid #cfd8dc;
+      border-radius: 8px;
+      padding: 0 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: #ffffff;
+      color: #39474f;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .radio-pill input {
+      accent-color: #2563eb;
+    }
+    .required-note {
+      color: #ef4444;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+    .customer-empty {
+      border: 1px dashed #cfd8dc;
+      border-radius: 10px;
+      background: #ffffff;
+      padding: 36px 16px;
+      color: #7b8790;
+      text-align: center;
+      font-size: 14px;
+    }
+    .client-chip {
+      color: #111827;
+      border-color: #cfd8dc;
+      background: #ffffff;
+    }
   </style>
 </head>
 <body>
@@ -1122,6 +2028,44 @@
       { id: "n-c-34bac655-19ef-806e-b3b9-cd6349cf5e3a", name: "(포켓) 커넥트 AI", memo: "", region: "", foundedDate: "", round: 1, monthlyTarget: 3, monthlyDone: 0, assignedGrantIds: [], assignmentStatuses: {} }
     ];
     function uid(prefix) { return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`; }
+    function normalizeGrantList(items) {
+      if (!Array.isArray(items)) return seedGrants;
+      return items
+        .filter(Boolean)
+        .map((grant, index) => ({
+          ...grant,
+          id: String(grant.id || `grant-${index}`),
+          title: String(grant.title || "이름 없는 지원사업"),
+          deadline: grant.deadline || "",
+          budget: grant.budget || "",
+          region: grant.region || "",
+          condition: grant.condition || "",
+          link: grant.link || ""
+        }));
+    }
+    function normalizeCompanyList(items) {
+      if (!Array.isArray(items)) return seedCompanies;
+      return items
+        .filter(Boolean)
+        .map((company, index) => ({
+          ...company,
+          id: String(company.id || `company-${index}`),
+          name: String(company.name || "이름 없는 기업"),
+          memo: company.memo || "",
+          region: company.region || "",
+          foundedDate: company.foundedDate || "",
+          round: Number.isFinite(Number(company.round)) ? Number(company.round) : 1,
+          monthlyTarget: Number.isFinite(Number(company.monthlyTarget)) && Number(company.monthlyTarget) > 0 ? Number(company.monthlyTarget) : 3,
+          monthlyDone: Number.isFinite(Number(company.monthlyDone)) ? Number(company.monthlyDone) : 0,
+          assignedGrantIds: Array.isArray(company.assignedGrantIds) ? company.assignedGrantIds.filter(Boolean) : [],
+          assignmentStatuses: company.assignmentStatuses && typeof company.assignmentStatuses === "object" ? company.assignmentStatuses : {},
+          assignmentResults: company.assignmentResults && typeof company.assignmentResults === "object" ? company.assignmentResults : {},
+          assignmentSources: company.assignmentSources && typeof company.assignmentSources === "object" ? company.assignmentSources : {}
+        }));
+    }
+    function plainObject(value) {
+      return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+    }
     function dateKey(date) {
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -1290,6 +2234,29 @@
       if (/(사업화|창업|지원|패키지|자금|정부|소상공인|보육|성장|경진대회)/i.test(text)) return "사업화자금";
       return "그 외";
     }
+    const customerGrantTabs = ["전체", "사업화 자금", "투자유치", "네트워킹", "데모데이", "교육행사"];
+    function customerGrantKind(grant) {
+      const text = [grant.title, grant.budget, grant.region, grant.condition, grant.category].join(" ").toLowerCase();
+      if (/(데모데이|demo|피칭|pitch)/i.test(text)) return "데모데이";
+      if (/(투자|ir|pr|액셀러레이터|vc|investment)/i.test(text)) return "투자유치";
+      if (/(네트워킹|네트워크|밋업|교류|컨퍼런스|conference|meetup)/i.test(text)) return "네트워킹";
+      if (/(교육|강의|세미나|멘토링|워크숍|행사|academy|camp)/i.test(text)) return "교육행사";
+      return "사업화 자금";
+    }
+    function recommendationPercent(company, grant, profile = {}) {
+      const text = [grant.title, grant.region, grant.condition, grant.budget].join(" ").toLowerCase();
+      let score = 64;
+      const companyRegion = String(profile.businessRegion || company?.region || "").trim();
+      if (companyRegion && text.includes(companyRegion.toLowerCase())) score += 9;
+      const ageLabel = companyAgeLabel(profile.foundedDate || company?.foundedDate, company?.age);
+      if (ageLabel && text.includes(ageLabel.toLowerCase())) score += 8;
+      if (/청년|대표|출생|나이/.test(text) && profile.ceoBirthYear) score += 5;
+      if (/투자|ir|pr|피칭|vc/.test(text) && profile.investmentAmount) score += 4;
+      const diff = dayDiff(grant.deadline);
+      if (diff !== null && diff >= 0 && diff <= 14) score += 5;
+      const stable = Array.from(String(`${company?.id || ""}${grant.id || grant.title || ""}`)).reduce((sum, char) => sum + char.charCodeAt(0), 0) % 9;
+      return Math.max(50, Math.min(96, score + stable));
+    }
     function isPocketCompany(company) {
       return Number(company.round || 0) < 1;
     }
@@ -1298,6 +2265,21 @@
     }
     function assignmentStatus(company, grantId) {
       return company.assignmentStatuses?.[grantId] || "ready";
+    }
+    function assignmentResult(company, grantId) {
+      return company.assignmentResults?.[grantId] || "";
+    }
+    function assignmentSource(company, grantId) {
+      return company.assignmentSources?.[grantId] || "";
+    }
+    function isBuilderAssignment(company, grantId) {
+      const source = assignmentSource(company, grantId);
+      return source === "manager" || source === "";
+    }
+    function assignmentResultLabel(result) {
+      if (result === "final") return "최종 합격";
+      if (result === "document") return "서류 합격";
+      return "";
     }
     function sortedAssignedGrantIds(company, grantMap) {
       const target = Number(company.monthlyTarget) || 1;
@@ -1341,14 +2323,22 @@
       async get(key) { return window.__artifactMemoryStore?.[key] || null; },
       async set(key, value) { window.__artifactMemoryStore = window.__artifactMemoryStore || {}; window.__artifactMemoryStore[key] = value; }
     };
+    function withTimeout(promise, ms = 3000) {
+      return Promise.race([
+        promise,
+        new Promise((resolve) => window.setTimeout(() => resolve(null), ms))
+      ]);
+    }
     async function storageRead() {
       if (supabaseClient) {
         try {
-          const { data, error } = await supabaseClient
+          const result = await withTimeout(supabaseClient
             .from("app_state")
             .select("data")
             .eq("id", STORAGE_KEY)
-            .maybeSingle();
+            .maybeSingle());
+          if (!result) return null;
+          const { data, error } = result;
           if (error) throw error;
           return data?.data || null;
         } catch (error) {
@@ -1363,13 +2353,18 @@
       } catch { return null; }
     }
     async function storageWrite(data) {
+      let payload = data;
+      if (data && !Object.prototype.hasOwnProperty.call(data, "customerProfiles")) {
+        const saved = await storageRead();
+        if (saved?.customerProfiles || saved?.customerSchedules) payload = { ...data, customerProfiles: saved?.customerProfiles || {}, customerSchedules: saved?.customerSchedules || {} };
+      }
       if (supabaseClient) {
         try {
           const { error } = await supabaseClient
             .from("app_state")
             .upsert({
               id: STORAGE_KEY,
-              data,
+              data: payload,
               updated_at: new Date().toISOString()
             });
           if (error) throw error;
@@ -1379,7 +2374,652 @@
         }
       }
       const api = window.storage || memoryStorage;
-      try { await api.set(STORAGE_KEY, JSON.stringify(data)); } catch {}
+      try { await api.set(STORAGE_KEY, JSON.stringify(payload)); } catch {}
+    }
+    function requestedCompanyId() {
+      const params = new URLSearchParams(window.location.search || "");
+      const fromQuery = params.get("company") || params.get("companyId");
+      if (fromQuery) return fromQuery;
+      const hash = String(window.location.hash || "").replace(/^#/, "");
+      if (!hash) return "";
+      if (hash.startsWith("company=")) return decodeURIComponent(hash.replace("company=", ""));
+      return "";
+    }
+    function customerPageUrl(companyId) {
+      const url = new URL(window.location.href);
+      url.search = "";
+      url.hash = "";
+      url.searchParams.set("company", companyId);
+      return url.toString();
+    }
+    function memoValue(memo, label) {
+      const match = String(memo || "").match(new RegExp(`${label}\\s*:\\s*([^/]+)`));
+      return match ? match[1].trim() : "";
+    }
+    function defaultCustomerProfile(company) {
+      const memo = company?.memo || "";
+      const cofounder = memoValue(memo, "공동창업자").toLowerCase();
+      const hasCofounder = cofounder && !["x", "n", "no", "없음", "무"].includes(cofounder) ? "yes" : cofounder ? "no" : "";
+      return {
+        foundedDate: company?.foundedDate || "",
+        businessRegion: company?.region || "",
+        ceoBirthYear: memoValue(memo, "대표 출생년도").replace(/[^\d]/g, "").slice(0, 4),
+        hasCofounder,
+        cofounderBirthYear: "",
+        previousRevenue: memoValue(memo, "전년도 매출액").replace(/[^\d]/g, ""),
+        ongoingGrants: memoValue(memo, "포켓 지원 리스트"),
+        investmentAmount: ""
+      };
+    }
+    function isCustomerProfileComplete(profile) {
+      if (!profile) return false;
+      if (!profile.foundedDate || !profile.businessRegion || !profile.ceoBirthYear || !profile.hasCofounder) return false;
+      if (String(profile.ceoBirthYear).length !== 4) return false;
+      if (profile.hasCofounder === "yes" && !profile.cofounderBirthYear) return false;
+      if (profile.hasCofounder === "yes" && String(profile.cofounderBirthYear).length !== 4) return false;
+      return true;
+    }
+    function displayMoney(value) {
+      if (!value) return "-";
+      const number = Number(String(value).replace(/[^\d]/g, ""));
+      if (!number) return value;
+      return `${number.toLocaleString("ko-KR")}원`;
+    }
+    function CustomerGrantPage({ companyId }) {
+      const [grants, setGrants] = useState(seedGrants);
+      const [companies, setCompanies] = useState(seedCompanies);
+      const [customerProfiles, setCustomerProfiles] = useState({});
+      const [customerSchedules, setCustomerSchedules] = useState({});
+      const [profileForm, setProfileForm] = useState(null);
+      const [editingProfile, setEditingProfile] = useState(false);
+      const [profileError, setProfileError] = useState("");
+      const [savingProfile, setSavingProfile] = useState(false);
+      const [customerCalendarBase, setCustomerCalendarBase] = useState(todayKey());
+      const [showCustomerCalendar, setShowCustomerCalendar] = useState(false);
+      const [customerScheduleForm, setCustomerScheduleForm] = useState(null);
+      const [customerGrantTab, setCustomerGrantTab] = useState("전체");
+      const [customerGrantQuery, setCustomerGrantQuery] = useState("");
+      const [customerGrantLimit, setCustomerGrantLimit] = useState(40);
+      const [viewingCustomerGrant, setViewingCustomerGrant] = useState(null);
+      const [showCustomerGrantFilter, setShowCustomerGrantFilter] = useState(false);
+      const [loaded, setLoaded] = useState(true);
+      const refreshBusyRef = useRef(false);
+      useEffect(() => {
+        let active = true;
+        const refresh = async () => {
+          if (refreshBusyRef.current) return;
+          refreshBusyRef.current = true;
+          try {
+            const saved = await storageRead();
+            if (!active) return;
+            if (saved?.grants && saved?.companies) {
+              setGrants(normalizeGrantList(saved.grants));
+              setCompanies(normalizeCompanyList(saved.companies));
+              setCustomerProfiles(plainObject(saved.customerProfiles));
+              setCustomerSchedules(plainObject(saved.customerSchedules));
+            }
+            setLoaded(true);
+          } catch (error) {
+            setLoaded(true);
+          } finally {
+            refreshBusyRef.current = false;
+          }
+        };
+        refresh();
+        const timer = window.setInterval(refresh, 60000);
+        return () => {
+          active = false;
+          window.clearInterval(timer);
+        };
+      }, []);
+      const grantMap = useMemo(() => Object.fromEntries(grants.map((grant) => [grant.id, grant])), [grants]);
+      const company = companies.find((item) => item.id === companyId);
+      const savedProfile = customerProfiles[companyId] || null;
+      const assignedGrants = useMemo(() => {
+        if (!company) return [];
+        return sortedAssignedGrantIds(company, grantMap).map((grantId) => grantMap[grantId]).filter(Boolean);
+      }, [company, grantMap]);
+      const readyGrants = useMemo(() => assignedGrants
+        .filter((grant) => assignmentStatus(company, grant.id) === "ready")
+        .sort((a, b) => (a.deadline || "9999-12-31").localeCompare(b.deadline || "9999-12-31")),
+        [assignedGrants, company]
+      );
+      const completedGrants = useMemo(() => assignedGrants
+        .filter((grant) => ["done", "passed"].includes(assignmentStatus(company, grant.id)))
+        .sort((a, b) => (b.deadline || "0000-00-00").localeCompare(a.deadline || "0000-00-00")),
+        [assignedGrants, company]
+      );
+      const customerCalendarDays = useMemo(() => monthCalendarKeys(customerCalendarBase), [customerCalendarBase]);
+      const readyDeadlineMap = useMemo(() => {
+        const map = {};
+        readyGrants.forEach((grant) => {
+          if (!grant.deadline) return;
+          map[grant.deadline] = [...(map[grant.deadline] || []), grant];
+        });
+        return map;
+      }, [readyGrants]);
+      const myCustomerSchedules = customerSchedules[companyId] || [];
+      const customerScheduleMap = useMemo(() => {
+        const map = {};
+        myCustomerSchedules.forEach((item) => {
+          if (!item.date) return;
+          map[item.date] = [...(map[item.date] || []), item];
+        });
+        return map;
+      }, [myCustomerSchedules]);
+      const addableGrants = useMemo(() => {
+        const assigned = new Set(company?.assignedGrantIds || []);
+        const seen = new Set();
+        return grants
+          .filter((grant) => !assigned.has(grant.id))
+          .filter((grant) => {
+            const diff = dayDiff(grant.deadline);
+            return diff === null || diff >= 0;
+          })
+          .filter((grant) => {
+            const key = [grant.title, grant.deadline, grant.link].map((value) => String(value || "").trim()).join("|");
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          })
+          .sort((a, b) => (a.deadline || "9999-12-31").localeCompare(b.deadline || "9999-12-31"));
+      }, [grants, company]);
+      const visibleAddableGrants = useMemo(() => {
+        const query = customerGrantQuery.trim().toLowerCase();
+        return addableGrants.filter((grant) => {
+          if (customerGrantTab !== "전체" && customerGrantKind(grant) !== customerGrantTab) return false;
+          if (!query) return true;
+          return [grant.title, grant.region, grant.condition, grant.budget].join(" ").toLowerCase().includes(query);
+        });
+      }, [addableGrants, customerGrantTab, customerGrantQuery]);
+      const visibleAddableGrantRows = useMemo(() => visibleAddableGrants.slice(0, customerGrantLimit), [visibleAddableGrants, customerGrantLimit]);
+      useEffect(() => {
+        setCustomerGrantLimit(40);
+      }, [customerGrantTab, customerGrantQuery]);
+      useEffect(() => {
+        if (!company || profileForm) return;
+        setProfileForm({ ...defaultCustomerProfile(company), ...(customerProfiles[companyId] || {}) });
+      }, [company, customerProfiles, companyId, profileForm]);
+      async function updateCustomerResult(grantId, result) {
+        const saved = await storageRead();
+        const savedCompanies = saved?.companies || companies;
+        const currentCompany = savedCompanies.find((item) => item.id === companyId) || company;
+        const currentResult = assignmentResult(currentCompany, grantId);
+        const nextResult = currentResult === result ? "" : result;
+        const nextCompanies = savedCompanies.map((item) => {
+          if (item.id !== companyId) return item;
+          const nextResults = { ...(item.assignmentResults || {}) };
+          if (nextResult) nextResults[grantId] = nextResult;
+          else delete nextResults[grantId];
+          return {
+            ...item,
+            assignmentStatuses: {
+              ...(item.assignmentStatuses || {}),
+              [grantId]: nextResult ? "passed" : "done"
+            },
+            assignmentResults: nextResults
+          };
+        });
+        const nextData = {
+          ...(saved || {}),
+          grants: saved?.grants || grants,
+          companies: nextCompanies,
+          schedules: saved?.schedules || [],
+          logs: [
+            {
+              id: uid("log"),
+              time: new Date().toISOString(),
+              action: nextResult ? "고객 결과 입력" : "고객 결과 취소",
+              detail: `${company?.name || "고객사"} / ${grantMap[grantId]?.title || "지원사업"}${nextResult ? ` / ${assignmentResultLabel(nextResult)}` : ""}`,
+              undo: null,
+              undone: false
+            },
+            ...(saved?.logs || [])
+          ].slice(0, 300),
+          calendarHeight: saved?.calendarHeight,
+          customerProfiles: saved?.customerProfiles || customerProfiles
+        };
+        await storageWrite(nextData);
+        setCompanies(nextCompanies);
+      }
+      async function saveCustomerSchedule() {
+        if (!customerScheduleForm?.title?.trim()) return;
+        const saved = await storageRead();
+        const savedSchedules = saved?.customerSchedules || customerSchedules;
+        const nextItem = {
+          id: uid("cs"),
+          date: customerScheduleForm.date,
+          title: customerScheduleForm.title.trim(),
+          content: customerScheduleForm.content.trim(),
+          time: customerScheduleForm.time.trim(),
+          createdAt: new Date().toISOString()
+        };
+        const nextSchedules = {
+          ...savedSchedules,
+          [companyId]: [...(savedSchedules[companyId] || []), nextItem]
+        };
+        const nextData = {
+          ...(saved || {}),
+          grants: saved?.grants || grants,
+          companies: saved?.companies || companies,
+          schedules: saved?.schedules || [],
+          logs: saved?.logs || [],
+          calendarHeight: saved?.calendarHeight,
+          customerProfiles: saved?.customerProfiles || customerProfiles,
+          customerSchedules: nextSchedules
+        };
+        await storageWrite(nextData);
+        setCustomerSchedules(nextSchedules);
+        setCustomerScheduleForm(null);
+      }
+      async function addCustomerGrant(grantId) {
+        const saved = await storageRead();
+        const savedCompanies = saved?.companies || companies;
+        const nextCompanies = savedCompanies.map((item) => {
+          if (item.id !== companyId || (item.assignedGrantIds || []).includes(grantId)) return item;
+          return {
+            ...item,
+            assignedGrantIds: [...(item.assignedGrantIds || []), grantId],
+            assignmentStatuses: { ...(item.assignmentStatuses || {}), [grantId]: "ready" },
+            assignmentSources: { ...(item.assignmentSources || {}), [grantId]: "customer" }
+          };
+        });
+        const nextData = {
+          ...(saved || {}),
+          grants: saved?.grants || grants,
+          companies: nextCompanies,
+          schedules: saved?.schedules || [],
+          logs: [
+            {
+              id: uid("log"),
+              time: new Date().toISOString(),
+              action: "고객 지원사업 추가",
+              detail: `${company?.name || "고객사"} / ${grantMap[grantId]?.title || "지원사업"}`,
+              undo: null,
+              undone: false
+            },
+            ...(saved?.logs || [])
+          ].slice(0, 300),
+          calendarHeight: saved?.calendarHeight,
+          customerProfiles: saved?.customerProfiles || customerProfiles
+        };
+        await storageWrite(nextData);
+        setCompanies(nextCompanies);
+      }
+      async function removeCustomerGrant(grantId) {
+        const saved = await storageRead();
+        const savedCompanies = saved?.companies || companies;
+        const nextCompanies = savedCompanies.map((item) => {
+          if (item.id !== companyId || isBuilderAssignment(item, grantId)) return item;
+          const nextStatuses = { ...(item.assignmentStatuses || {}) };
+          const nextResults = { ...(item.assignmentResults || {}) };
+          delete nextStatuses[grantId];
+          delete nextResults[grantId];
+          return {
+            ...item,
+            assignedGrantIds: (item.assignedGrantIds || []).filter((id) => id !== grantId),
+            assignmentStatuses: nextStatuses,
+            assignmentResults: nextResults
+          };
+        });
+        const nextData = {
+          ...(saved || {}),
+          grants: saved?.grants || grants,
+          companies: nextCompanies,
+          schedules: saved?.schedules || [],
+          logs: [
+            {
+              id: uid("log"),
+              time: new Date().toISOString(),
+              action: "고객 지원사업 취소",
+              detail: `${company?.name || "고객사"} / ${grantMap[grantId]?.title || "지원사업"}`,
+              undo: null,
+              undone: false
+            },
+            ...(saved?.logs || [])
+          ].slice(0, 300),
+          calendarHeight: saved?.calendarHeight,
+          customerProfiles: saved?.customerProfiles || customerProfiles
+        };
+        await storageWrite(nextData);
+        setCompanies(nextCompanies);
+      }
+      async function updateCustomerGrantStatus(grantId, status) {
+        const saved = await storageRead();
+        const savedCompanies = saved?.companies || companies;
+        const nextCompanies = savedCompanies.map((item) => {
+          if (item.id !== companyId) return item;
+          const nextResults = { ...(item.assignmentResults || {}) };
+          if (status === "ready") delete nextResults[grantId];
+          return {
+            ...item,
+            assignmentStatuses: { ...(item.assignmentStatuses || {}), [grantId]: status },
+            assignmentResults: nextResults
+          };
+        });
+        const nextData = {
+          ...(saved || {}),
+          grants: saved?.grants || grants,
+          companies: nextCompanies,
+          schedules: saved?.schedules || [],
+          logs: [
+            {
+              id: uid("log"),
+              time: new Date().toISOString(),
+              action: "고객 지원사업 상태 변경",
+              detail: `${company?.name || "고객사"} / ${grantMap[grantId]?.title || "지원사업"} / ${status === "done" ? "완료" : "준비중"}`,
+              undo: null,
+              undone: false
+            },
+            ...(saved?.logs || [])
+          ].slice(0, 300),
+          calendarHeight: saved?.calendarHeight,
+          customerProfiles: saved?.customerProfiles || customerProfiles
+        };
+        await storageWrite(nextData);
+        setCompanies(nextCompanies);
+      }
+      async function saveCustomerProfile() {
+        const nextProfile = { ...(profileForm || {}) };
+        if (!isCustomerProfileComplete(nextProfile)) {
+          setProfileError("필수 정보를 모두 입력해야 지원사업 페이지로 넘어갈 수 있습니다.");
+          return;
+        }
+        setSavingProfile(true);
+        const saved = await storageRead();
+        const nextData = {
+          ...(saved || {}),
+          grants: saved?.grants || grants,
+          companies: saved?.companies || companies,
+          schedules: saved?.schedules || [],
+          logs: saved?.logs || [],
+          calendarHeight: saved?.calendarHeight,
+          customerProfiles: {
+            ...(saved?.customerProfiles || {}),
+            [companyId]: { ...nextProfile, updatedAt: new Date().toISOString() }
+          }
+        };
+        await storageWrite(nextData);
+        setCustomerProfiles(nextData.customerProfiles);
+        setProfileForm(nextData.customerProfiles[companyId]);
+        setEditingProfile(false);
+        setProfileError("");
+        setSavingProfile(false);
+      }
+      if (!loaded) {
+        return <div className="customer-page"><div className="customer-shell"><div className="customer-empty">불러오는 중입니다</div></div></div>;
+      }
+      if (!company) {
+        return <div className="customer-page"><div className="customer-shell"><div className="customer-empty">해당 고객사 페이지를 찾을 수 없습니다</div></div></div>;
+      }
+      const profile = savedProfile || profileForm || defaultCustomerProfile(company);
+      const profileComplete = isCustomerProfileComplete(savedProfile);
+      const renderCustomerGrantCard = (grant) => {
+        const openUrl = safeUrl(grant.link);
+        const status = assignmentStatus(company, grant.id);
+        const result = assignmentResult(company, grant.id);
+        const isComplete = ["done", "passed"].includes(status);
+        const isBuilder = isBuilderAssignment(company, grant.id);
+        const diff = dayDiff(grant.deadline);
+        const titleNode = openUrl ? <a href={openUrl} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>{grant.title}</a> : grant.title;
+        return (
+          <article className={`customer-grant-card ${isComplete ? "result-card" : "ready-card"} ${isBuilder ? "builder-fixed" : ""} ${!isComplete && diff !== null && diff <= 5 ? "deadline-soon" : ""}`} key={grant.id} title={isBuilder ? (isComplete ? "제출 완료" : "빌더가 자료를 준비하고 있습니다") : undefined} onClick={!isComplete ? () => setViewingCustomerGrant(grant) : undefined}>
+            <div className="customer-grant-top">
+              <h3 className="customer-grant-title">{titleNode}</h3>
+              <div className="customer-grant-side">
+                {!isComplete && <span className={`customer-card-dday ${diff !== null && diff <= 5 ? "urgent" : ""}`}>{ddayLabel(grant.deadline)}</span>}
+                {!isBuilder && <button className="customer-remove-btn" title="내 지원사업에서 제거" onClick={(event) => { event.stopPropagation(); removeCustomerGrant(grant.id); }}>×</button>}
+              </div>
+            </div>
+            {!isComplete && (
+              <div className="customer-ready-line">
+                <div className="customer-ready-info" title={grant.budget || grant.condition || "-"}>{grant.budget || grant.condition || "-"}</div>
+                <button className="customer-result-btn customer-ready-done" onClick={(event) => { event.stopPropagation(); updateCustomerGrantStatus(grant.id, "done"); }}>완료</button>
+              </div>
+            )}
+            {isComplete && (
+              <div className="customer-result-row">
+                <button className={`customer-result-btn document ${result === "document" ? "active" : ""}`} onClick={() => updateCustomerResult(grant.id, "document")}>서류 합격</button>
+                <button className={`customer-result-btn final ${result === "final" ? "active" : ""}`} onClick={() => updateCustomerResult(grant.id, "final")}>최종 합격</button>
+              </div>
+            )}
+          </article>
+        );
+      };
+      return (
+        <div className="customer-page">
+          <div className="customer-shell">
+            <div className="customer-section-head">
+              <div>
+                <h2><span>내 지원사업 관리</span><button className="customer-info-chip inline" onClick={() => { setProfileForm({ ...defaultCustomerProfile(company), ...(customerProfiles[companyId] || {}) }); setEditingProfile(true); }}>내 기업 정보</button></h2>
+              </div>
+            </div>
+            {assignedGrants.length ? (
+              <div className="customer-work-area">
+                <section className="customer-grant-section">
+                  <div className="customer-calendar-head">
+                    <h3 className="customer-grant-section-title">준비중</h3>
+                    <button className={`text-btn overdue-toggle ${showCustomerCalendar ? "primary" : ""}`} onClick={() => setShowCustomerCalendar((value) => !value)}>캘린더</button>
+                  </div>
+                  {readyGrants.length ? <div className="customer-grants">{readyGrants.map(renderCustomerGrantCard)}</div> : <div className="customer-empty">준비중인 지원사업이 없습니다</div>}
+                </section>
+                <section className="customer-grant-section">
+                  <h3 className="customer-grant-section-title"><span className="customer-title-text has-tip">완료/합격</span></h3>
+                  {completedGrants.length ? <div className="customer-grants completed-scroll">{completedGrants.map(renderCustomerGrantCard)}</div> : <div className="customer-empty">완료 또는 합격 처리된 지원사업이 없습니다</div>}
+                </section>
+              </div>
+            ) : (
+              <div className="customer-empty">아직 배정된 지원사업이 없습니다</div>
+            )}
+            <section className="customer-grant-section list-section">
+              <div className="customer-list-panel">
+                <div className="customer-list-tools">
+                  <input
+                    className="customer-list-search"
+                    value={customerGrantQuery}
+                    onChange={(event) => setCustomerGrantQuery(event.target.value)}
+                    placeholder="지원사업 검색"
+                  />
+                  <button className={`customer-filter-pill active`} onClick={() => setShowCustomerGrantFilter((value) => !value)}>{customerGrantTab === "전체" ? "전체 보기" : customerGrantTab}</button>
+                  {showCustomerGrantFilter && (
+                    <div className="customer-filter-menu">
+                      {customerGrantTabs.map((tab) => (
+                        <button
+                          className={`customer-filter-option ${customerGrantTab === tab ? "active" : ""}`}
+                          key={tab}
+                          onClick={() => {
+                            setCustomerGrantTab(tab);
+                            setShowCustomerGrantFilter(false);
+                          }}
+                        >
+                          {tab}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {visibleAddableGrants.length ? (
+                  <div className="customer-add-list">
+                    {visibleAddableGrantRows.map((grant) => (
+                      <article className="customer-add-card" key={grant.id} role="button" tabIndex={0} onClick={() => setViewingCustomerGrant(grant)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") setViewingCustomerGrant(grant); }}>
+                        <div className="customer-add-dday">{ddayLabel(grant.deadline)}</div>
+                        <div className="customer-add-body">
+                          <h4>{grant.title}</h4>
+                          <div className="customer-add-meta">
+                            <span className="customer-reco-chip">추천 {recommendationPercent(company, grant, profile)}%</span>
+                            {grant.budget || "지원 규모 미입력"}
+                          </div>
+                        </div>
+                        <button className="customer-add-btn" onClick={(event) => { event.stopPropagation(); addCustomerGrant(grant.id); }}>내 지원사업에 추가</button>
+                      </article>
+                    ))}
+                    {visibleAddableGrantRows.length < visibleAddableGrants.length && (
+                      <button className="customer-more-btn" onClick={() => setCustomerGrantLimit((limit) => limit + 40)}>
+                        더 보기
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="customer-empty">표시할 지원사업이 없습니다</div>
+                )}
+              </div>
+            </section>
+          </div>
+          {((!profileComplete && profileForm) || (editingProfile && profileForm)) && (
+            <CustomerProfileModal
+              form={profileForm}
+              setForm={setProfileForm}
+              error={profileError}
+              saving={savingProfile}
+              onSave={saveCustomerProfile}
+              canClose={profileComplete}
+              onClose={() => { setEditingProfile(false); setProfileError(""); setProfileForm({ ...defaultCustomerProfile(company), ...(customerProfiles[companyId] || {}) }); }}
+            />
+          )}
+          {showCustomerCalendar && (
+            <div className="modal-backdrop" onClick={() => setShowCustomerCalendar(false)}>
+              <div className="modal customer-calendar-modal" onClick={(event) => event.stopPropagation()}>
+                <div className="customer-calendar-head">
+                  <h2 className="month-title">마감 일정</h2>
+                  <div className="customer-calendar-nav">
+                    <button className="page-btn" onClick={() => setCustomerCalendarBase((date) => addMonthsKey(date, -1))}>‹</button>
+                    <span className="customer-calendar-month">{monthTitle(customerCalendarBase)}</span>
+                    <button className="page-btn" onClick={() => setCustomerCalendarBase((date) => addMonthsKey(date, 1))}>›</button>
+                  </div>
+                </div>
+                <div className="customer-calendar-grid">
+                  {["일", "월", "화", "수", "목", "금", "토"].map((day, index) => <div className={`customer-weekday ${index === 0 || index === 6 ? "weekend" : ""}`} key={day}>{day}</div>)}
+                  {customerCalendarDays.map((date) => {
+                    const dayItems = readyDeadlineMap[date] || [];
+                    const manualItems = customerScheduleMap[date] || [];
+                    const day = parseDateKey(date).getDay();
+                    return (
+                      <div className={`customer-calendar-day ${day === 0 || day === 6 ? "weekend" : ""} ${date === todayKey() ? "today" : ""} ${isSameMonth(date, customerCalendarBase) ? "" : "out-month"}`} key={date} onClick={() => setCustomerScheduleForm({ date, title: "", content: "", time: "" })} title="클릭하면 일정 추가">
+                        <div className="customer-calendar-date">{shortDateLabel(date)}</div>
+                        {dayItems.map((grant) => {
+                          const openUrl = safeUrl(grant.link);
+                          const content = (
+                            <React.Fragment>
+                              <span className="customer-deadline-label">마감</span>
+                              <span className="customer-deadline-title">{grant.title}</span>
+                            </React.Fragment>
+                          );
+                          return openUrl ? (
+                            <a className="customer-deadline-item" href={openUrl} target="_blank" rel="noreferrer" key={grant.id} title={grant.title} onClick={(event) => event.stopPropagation()}>{content}</a>
+                          ) : (
+                            <div className="customer-deadline-item" key={grant.id} title={grant.title}>{content}</div>
+                          );
+                        })}
+                        {manualItems.map((item) => <div className="customer-manual-schedule" key={item.id} title={[item.time, item.title, item.content].filter(Boolean).join(" / ")}>{item.time ? `${item.time} ` : ""}{item.title}</div>)}
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="modal-actions">
+                  <div className="action-right"><button className="text-btn primary" onClick={() => setShowCustomerCalendar(false)}>닫기</button></div>
+                </div>
+              </div>
+            </div>
+          )}
+          {customerScheduleForm && (
+            <div className="modal-backdrop" onClick={() => setCustomerScheduleForm(null)}>
+              <div className="modal customer-schedule-modal" onClick={(event) => event.stopPropagation()}>
+                <h2>{shortDateLabel(customerScheduleForm.date)} 일정 추가</h2>
+                <div className="form-grid">
+                  <Field label="주제"><input value={customerScheduleForm.title} onChange={(event) => setCustomerScheduleForm({ ...customerScheduleForm, title: event.target.value })} placeholder="예: 사업계획서 보완" /></Field>
+                  <Field label="내용"><textarea value={customerScheduleForm.content} onChange={(event) => setCustomerScheduleForm({ ...customerScheduleForm, content: event.target.value })} placeholder="세부 메모를 입력하세요" /></Field>
+                  <Field label="시간"><input type="time" value={customerScheduleForm.time} onChange={(event) => setCustomerScheduleForm({ ...customerScheduleForm, time: event.target.value })} /></Field>
+                </div>
+                <div className="modal-actions">
+                  <div className="action-right">
+                    <button className="text-btn" onClick={() => setCustomerScheduleForm(null)}>취소</button>
+                    <button className="text-btn primary" disabled={!customerScheduleForm.title.trim()} onClick={saveCustomerSchedule}>저장</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          {viewingCustomerGrant && (
+            <CustomerGrantInfoModal
+              grant={viewingCustomerGrant}
+              onClose={() => setViewingCustomerGrant(null)}
+              onAdd={() => {
+                addCustomerGrant(viewingCustomerGrant.id);
+                setViewingCustomerGrant(null);
+              }}
+            />
+          )}
+        </div>
+      );
+    }
+    function CustomerGrantInfoModal({ grant, onClose, onAdd }) {
+      const [activeTab, setActiveTab] = useState("info");
+      const openUrl = safeUrl(grant.link);
+      return (
+        <div className="modal-backdrop">
+          <div className="modal">
+            <h2>{grant.title || "지원사업 정보"}</h2>
+            <div className="modal-tabs">
+              <button className={`modal-tab ${activeTab === "info" ? "active" : ""}`} onClick={() => setActiveTab("info")}>지원사업 정보</button>
+              <button className={`modal-tab ${activeTab === "custom" ? "active" : ""}`} onClick={() => setActiveTab("custom")}>맞춤 자료 제작</button>
+            </div>
+            {activeTab === "info" ? (
+              <div className="detail-list">
+                <div className="detail-item"><span className="detail-label">지원대상</span><div className="detail-value">{grant.condition || grant.region || "공고에서 확인"}</div></div>
+                <div className="detail-item"><span className="detail-label">혜택</span><div className="detail-value">{grant.budget || "지원 규모 미입력"}</div></div>
+                <div className="detail-item"><span className="detail-label">마감일</span><div className="detail-value">{grant.deadline || "-"} {grant.deadline ? `(${ddayLabel(grant.deadline)})` : ""}</div></div>
+                <div className="detail-item"><span className="detail-label">문의</span><div className="detail-value">{openUrl ? "공고 URL에서 확인" : "공고에서 확인"}</div></div>
+              </div>
+            ) : (
+              <div className="detail-list">
+                <div className="detail-item"><span className="detail-label">제작 항목</span><div className="detail-value">사업계획서, 제출 서류, 기업 소개자료를 지원사업에 맞춰 준비합니다.</div></div>
+                <div className="detail-item"><span className="detail-label">진행 방식</span><div className="detail-value">빌더가 공고 요건을 확인한 뒤 필요한 자료를 정리합니다.</div></div>
+              </div>
+            )}
+            <div className="modal-actions">
+              {openUrl && <a className="link-btn" href={openUrl} target="_blank" rel="noreferrer">공고 열기</a>}
+              <div className="action-right">
+                <button className="text-btn" onClick={onClose}>닫기</button>
+                <button className="text-btn primary" onClick={() => setActiveTab("custom")}>맞춤 자료 제작</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    function CustomerProfileModal({ form, setForm, error, saving, onSave, canClose = false, onClose }) {
+      return (
+        <div className="modal-backdrop profile-modal">
+          <div className="modal">
+            <h2>기업 정보 입력</h2>
+            <p className="profile-intro">지원사업 검토에 필요한 기본 정보입니다. 필수 정보를 입력해야 배정된 지원사업을 확인할 수 있습니다.</p>
+            <div className="form-grid">
+              <Field label="설립일자"><input type="date" value={form.foundedDate || ""} onChange={(e) => setForm({ ...form, foundedDate: e.target.value })} /></Field>
+              <Field label="사업자 지역"><input value={form.businessRegion || ""} onChange={(e) => setForm({ ...form, businessRegion: e.target.value })} placeholder="예: 경기, 서울, 부산" /></Field>
+              <Field label="대표 출생 년도"><input inputMode="numeric" maxLength="4" value={form.ceoBirthYear || ""} onChange={(e) => setForm({ ...form, ceoBirthYear: e.target.value.replace(/[^\d]/g, "").slice(0, 4) })} placeholder="예: 1993" /></Field>
+              <Field label="공동 창업자 여부">
+                <div className="radio-row">
+                  <label className="radio-pill"><input type="radio" name="hasCofounder" checked={form.hasCofounder === "no"} onChange={() => setForm({ ...form, hasCofounder: "no", cofounderBirthYear: "" })} />없음</label>
+                  <label className="radio-pill"><input type="radio" name="hasCofounder" checked={form.hasCofounder === "yes"} onChange={() => setForm({ ...form, hasCofounder: "yes" })} />있음</label>
+                </div>
+              </Field>
+              {form.hasCofounder === "yes" && (
+                <Field label="공동창업자 출생년도"><input inputMode="numeric" maxLength="4" value={form.cofounderBirthYear || ""} onChange={(e) => setForm({ ...form, cofounderBirthYear: e.target.value.replace(/[^\d]/g, "").slice(0, 4) })} placeholder="예: 1992" /></Field>
+              )}
+              <Field label="전년도 매출액"><input inputMode="numeric" value={form.previousRevenue || ""} onChange={(e) => setForm({ ...form, previousRevenue: e.target.value.replace(/[^\d]/g, "") })} placeholder="선택 입력" /></Field>
+              <Field label="진행중인 지원사업"><textarea value={form.ongoingGrants || ""} onChange={(e) => setForm({ ...form, ongoingGrants: e.target.value })} placeholder="선택 입력" /></Field>
+              <Field label="투자 유치액"><input inputMode="numeric" value={form.investmentAmount || ""} onChange={(e) => setForm({ ...form, investmentAmount: e.target.value.replace(/[^\d]/g, "") })} placeholder="선택 입력" /></Field>
+            </div>
+            {error && <div className="required-note">{error}</div>}
+            <div className="modal-actions">
+              <div className="action-right">
+                {canClose && <button className="text-btn" onClick={onClose}>닫기</button>}
+                <button className="text-btn primary" disabled={saving} onClick={onSave}>{saving ? "저장 중" : "저장하고 보기"}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
     }
     function StartupGrantBoard() {
       const [grants, setGrants] = useState(seedGrants);
@@ -1508,8 +3148,12 @@
             setCompanies((current) => current.map((target) => {
               if (target.id !== company.id) return target;
               const nextStatuses = { ...(target.assignmentStatuses || {}) };
+              const nextResults = { ...(target.assignmentResults || {}) };
+              const nextSources = { ...(target.assignmentSources || {}) };
               delete nextStatuses[grant.id];
-              return { ...target, assignedGrantIds: (target.assignedGrantIds || []).filter((id) => id !== grant.id), assignmentStatuses: nextStatuses };
+              delete nextResults[grant.id];
+              delete nextSources[grant.id];
+              return { ...target, assignedGrantIds: (target.assignedGrantIds || []).filter((id) => id !== grant.id), assignmentStatuses: nextStatuses, assignmentResults: nextResults, assignmentSources: nextSources };
             }));
             return true;
           }
@@ -1559,8 +3203,12 @@
           setCompanies((current) => current.map((company) => {
             if (company.id !== undo.companyId) return company;
             const nextStatuses = { ...(company.assignmentStatuses || {}) };
+            const nextResults = { ...(company.assignmentResults || {}) };
+            const nextSources = { ...(company.assignmentSources || {}) };
             delete nextStatuses[undo.grantId];
-            return { ...company, assignedGrantIds: (company.assignedGrantIds || []).filter((id) => id !== undo.grantId), assignmentStatuses: nextStatuses };
+            delete nextResults[undo.grantId];
+            delete nextSources[undo.grantId];
+            return { ...company, assignedGrantIds: (company.assignedGrantIds || []).filter((id) => id !== undo.grantId), assignmentStatuses: nextStatuses, assignmentResults: nextResults, assignmentSources: nextSources };
           }));
         } else if (undo.type === "removeAssignment") {
           setCompanies((current) => current.map((company) => {
@@ -1568,8 +3216,12 @@
             const ids = [...(company.assignedGrantIds || [])];
             ids.splice(Math.max(0, Math.min(undo.index ?? ids.length, ids.length)), 0, undo.grantId);
             const nextStatuses = { ...(company.assignmentStatuses || {}) };
+            const nextResults = { ...(company.assignmentResults || {}) };
+            const nextSources = { ...(company.assignmentSources || {}) };
             if (undo.status) nextStatuses[undo.grantId] = undo.status;
-            return { ...company, assignedGrantIds: ids, assignmentStatuses: nextStatuses };
+            if (undo.result) nextResults[undo.grantId] = undo.result;
+            if (undo.source) nextSources[undo.grantId] = undo.source;
+            return { ...company, assignedGrantIds: ids, assignmentStatuses: nextStatuses, assignmentResults: nextResults, assignmentSources: nextSources };
           }));
         } else if (undo.type === "addSchedule") {
           setSchedules((current) => current.filter((schedule) => schedule.id !== undo.schedule.id));
@@ -1585,9 +3237,12 @@
           setCompanies((current) => current.map((company) => {
             if (company.id !== undo.companyId) return company;
             const nextStatuses = { ...(company.assignmentStatuses || {}) };
+            const nextResults = { ...(company.assignmentResults || {}) };
             if (undo.previousStatus) nextStatuses[undo.grantId] = undo.previousStatus;
             else delete nextStatuses[undo.grantId];
-            return { ...company, assignmentStatuses: nextStatuses };
+            if (undo.previousResult) nextResults[undo.grantId] = undo.previousResult;
+            else delete nextResults[undo.grantId];
+            return { ...company, assignmentStatuses: nextStatuses, assignmentResults: nextResults };
           }));
         } else if (undo.type === "moveCompany") {
           setCompanies((current) => {
@@ -1618,7 +3273,8 @@
           return {
             ...company,
             assignedGrantIds: [...company.assignedGrantIds, grantId],
-            assignmentStatuses: { ...(company.assignmentStatuses || {}), [grantId]: "ready" }
+            assignmentStatuses: { ...(company.assignmentStatuses || {}), [grantId]: "ready" },
+            assignmentSources: { ...(company.assignmentSources || {}), [grantId]: "manager" }
           };
         }));
         setSelectedGrantId("");
@@ -1630,13 +3286,19 @@
         const grantTitle = grantMap[grantId]?.title || "지원사업";
         const index = targetCompany?.assignedGrantIds?.indexOf(grantId) ?? -1;
         const status = targetCompany?.assignmentStatuses?.[grantId] || "";
+        const result = targetCompany?.assignmentResults?.[grantId] || "";
+        const source = targetCompany?.assignmentSources?.[grantId] || "";
         setCompanies((current) => current.map((company) => {
           if (company.id !== companyId) return company;
           const nextStatuses = { ...(company.assignmentStatuses || {}) };
+          const nextResults = { ...(company.assignmentResults || {}) };
+          const nextSources = { ...(company.assignmentSources || {}) };
           delete nextStatuses[grantId];
-          return { ...company, assignedGrantIds: company.assignedGrantIds.filter((id) => id !== grantId), assignmentStatuses: nextStatuses };
+          delete nextResults[grantId];
+          delete nextSources[grantId];
+          return { ...company, assignedGrantIds: company.assignedGrantIds.filter((id) => id !== grantId), assignmentStatuses: nextStatuses, assignmentResults: nextResults, assignmentSources: nextSources };
         }));
-        addLog("지원사업 제거", `${companyName} / ${grantTitle}`, { type: "removeAssignment", companyId, grantId, index, status });
+        addLog("지원사업 제거", `${companyName} / ${grantTitle}`, { type: "removeAssignment", companyId, grantId, index, status, result, source });
       }
       function addSchedule(date) {
         if (!schedulePick) return;
@@ -1718,8 +3380,12 @@
         setGrants((current) => current.filter((grant) => grant.id !== id));
         setCompanies((current) => current.map((company) => {
           const nextStatuses = { ...(company.assignmentStatuses || {}) };
+          const nextResults = { ...(company.assignmentResults || {}) };
+          const nextSources = { ...(company.assignmentSources || {}) };
           delete nextStatuses[id];
-          return { ...company, assignedGrantIds: company.assignedGrantIds.filter((grantId) => grantId !== id), assignmentStatuses: nextStatuses };
+          delete nextResults[id];
+          delete nextSources[id];
+          return { ...company, assignedGrantIds: company.assignedGrantIds.filter((grantId) => grantId !== id), assignmentStatuses: nextStatuses, assignmentResults: nextResults, assignmentSources: nextSources };
         }));
         setEditingGrant(null);
       }
@@ -1980,11 +3646,15 @@
         const companyName = targetCompany?.name || "기업";
         const grantTitle = grantMap[grantId]?.title || "지원사업";
         const previousStatus = targetCompany?.assignmentStatuses?.[grantId] || "";
+        const previousResult = targetCompany?.assignmentResults?.[grantId] || "";
         setCompanies((current) => current.map((company) => {
           if (company.id !== companyId) return company;
-          return { ...company, assignmentStatuses: { ...(company.assignmentStatuses || {}), [grantId]: status } };
+          const nextResults = { ...(company.assignmentResults || {}) };
+          if (status === "ready") delete nextResults[grantId];
+          if (status === "passed") nextResults[grantId] = nextResults[grantId] || "final";
+          return { ...company, assignmentStatuses: { ...(company.assignmentStatuses || {}), [grantId]: status }, assignmentResults: nextResults };
         }));
-        addLog("진행상태 변경", `${companyName} / ${grantTitle} / ${statusLabel(status)}`, { type: "status", companyId, grantId, previousStatus });
+        addLog("진행상태 변경", `${companyName} / ${grantTitle} / ${statusLabel(status)}`, { type: "status", companyId, grantId, previousStatus, previousResult });
       }
       return (
         <div className="grant-app">
@@ -2064,6 +3734,7 @@
                     <div className="company-controls">
                       {company.contractEnded && <span className="ended-pill">종료</span>}
                       {company.crmUrl && <a className="crm-chip" href={safeUrl(company.crmUrl)} target="_blank" rel="noreferrer" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => event.stopPropagation()}>CRM</a>}
+                      <a className="crm-chip client-chip" href={customerPageUrl(company.id)} target="_blank" rel="noreferrer" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => event.stopPropagation()}>고객</a>
                     </div>
                     <div className="company-name-row">
                       <h3 className="company-name">{company.name}</h3>
@@ -2106,7 +3777,7 @@
                                 <div className="status-toggle" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
                                   <button className={`status-btn ready ${assignmentStatus(company, grantId) === "ready" ? "active" : ""}`} onClick={(e) => { e.stopPropagation(); updateAssignmentStatus(company.id, grantId, "ready"); }}>준비</button>
                                   <button className={`status-btn done ${assignmentStatus(company, grantId) === "done" ? "active" : ""}`} onClick={(e) => { e.stopPropagation(); updateAssignmentStatus(company.id, grantId, "done"); }}>완료</button>
-                                  <button className={`status-btn passed ${assignmentStatus(company, grantId) === "passed" ? "active" : ""}`} onClick={(e) => { e.stopPropagation(); updateAssignmentStatus(company.id, grantId, "passed"); }}>합격</button>
+                                  <button className={`status-btn passed ${assignmentStatus(company, grantId) === "passed" ? "active" : ""}`} onClick={(e) => { e.stopPropagation(); updateAssignmentStatus(company.id, grantId, "passed"); }}>{assignmentResult(company, grantId) ? assignmentResultLabel(assignmentResult(company, grantId)) : "합격"}</button>
                                 </div>
                               </div>
                             </div>
@@ -2331,7 +4002,35 @@
     function Field({ label, children }) {
       return <div className="field"><label>{label}</label>{children}</div>;
     }
-    ReactDOM.createRoot(document.getElementById("root")).render(<StartupGrantBoard />);
+    class ErrorBoundary extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = { hasError: false, message: "" };
+      }
+      static getDerivedStateFromError(error) {
+        return { hasError: true, message: error?.message || String(error || "알 수 없는 오류") };
+      }
+      componentDidCatch(error) {
+        console.error("Page render failed", error);
+      }
+      render() {
+        if (this.state.hasError) {
+          return (
+            <div className="customer-page">
+              <div className="customer-shell">
+                <div className="customer-empty">페이지 오류: {this.state.message}</div>
+              </div>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
+    }
+    function App() {
+      const companyId = requestedCompanyId();
+      return companyId ? <CustomerGrantPage companyId={companyId} /> : <StartupGrantBoard />;
+    }
+    ReactDOM.createRoot(document.getElementById("root")).render(<ErrorBoundary><App /></ErrorBoundary>);
   </script>
 </body>
 </html>
