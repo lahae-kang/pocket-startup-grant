@@ -102,6 +102,7 @@
       align-items: flex-start;
       justify-content: space-between;
       padding: 9px 10px 9px 12px;
+      height: 64px;
       border-radius: 8px;
       cursor: grab;
       color: inherit;
@@ -154,6 +155,16 @@
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+    }
+    .grant-title-link {
+      color: inherit;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .grant-title-link:hover {
+      color: #2563eb;
+      text-decoration: underline;
+      text-underline-offset: 2px;
     }
     .dday {
       flex: 0 0 auto;
@@ -652,8 +663,15 @@
       padding: 18px;
       box-shadow: 0 20px 60px rgba(15, 23, 42, 0.25);
     }
+    .modal.grant-edit-modal {
+      width: min(720px, calc(100vw - 40px));
+      max-height: 88vh;
+      overflow: auto;
+      padding: 24px;
+    }
     .modal h2 { margin: 0 0 14px; font-size: 18px; }
     .form-grid { display: grid; gap: 10px; }
+    .grant-edit-modal .form-grid { gap: 12px; }
     .field label {
       display: block;
       font-size: 12px;
@@ -670,6 +688,7 @@
       outline: none;
     }
     .field textarea { min-height: 74px; resize: vertical; }
+    .grant-edit-modal .field textarea { min-height: 104px; }
     .modal-actions { display: flex; justify-content: space-between; gap: 8px; margin-top: 14px; }
     .action-right { display: flex; gap: 8px; margin-left: auto; }
     .detail-list {
@@ -1358,6 +1377,10 @@
       background: #ffffff;
       padding: 14px;
       box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+      height: 104px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
     .customer-grant-card.ready-card {
       background: #f8fafc;
@@ -3679,10 +3702,13 @@
                   <div className="grant-category-title"><span>{group.category}</span></div>
                   {group.items.map((grant) => (
                     <div key={grant.id} role="button" tabIndex={0} ref={(node) => { grantRefs.current[grant.id] = node; }} className={`grant-tab ${selectedGrantId === grant.id ? "selected" : ""} ${highlightGrantId === grant.id ? "highlight" : ""}`} title={`지역: ${grant.region || "-"}\n조건: ${grant.condition || "-"}\n규모: ${grant.budget || "-"}\n링크: ${grant.link || "-"}`} onPointerDown={(event) => startPointerGrant(event, grant)} onDoubleClick={() => setEditingGrant(grant)}>
-                      <span className="grant-name">{shortListTitle(grant.title)}</span>
+                      {grant.link ? (
+                        <a className="grant-name grant-title-link" href={safeUrl(grant.link)} target="_blank" rel="noreferrer" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => event.stopPropagation()}>{shortListTitle(grant.title)}</a>
+                      ) : (
+                        <span className="grant-name">{shortListTitle(grant.title)}</span>
+                      )}
                       <span className="grant-side">
                         <span className={ddayClass(grant.deadline)}>{ddayLabel(grant.deadline)}</span>
-                        {grant.link && <a className="grant-link-chip" href={safeUrl(grant.link)} target="_blank" rel="noreferrer" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => event.stopPropagation()}>URL</a>}
                       </span>
                     </div>
                   ))}
@@ -3865,7 +3891,7 @@
           {companyDrag && <div className="company-drag-preview" style={{ left: companyDrag.x, top: companyDrag.y }}>기업 위치 이동<br />{companyDrag.name}</div>}
           {companyDrag?.marker && <div className="company-insert-marker" style={{ left: companyDrag.marker.left, top: companyDrag.marker.top, height: companyDrag.marker.height }} />}
           {toast && <div className="toast">{toast}</div>}
-          {viewingGrant && <GrantDetailModal grant={viewingGrant} onClose={() => setViewingGrant(null)} onEdit={() => { setEditingGrant(viewingGrant); setViewingGrant(null); }} onSelect={() => { setSelectedGrantId(viewingGrant.id); setViewingGrant(null); notify("기업 칸을 클릭해 배정하세요"); }} onDelete={() => { if (window.confirm?.("이 지원사업을 삭제할까요?")) { deleteGrant(viewingGrant.id); setViewingGrant(null); notify("삭제됨"); } }} />}
+          {viewingGrant && <GrantModal grant={viewingGrant} onClose={() => setViewingGrant(null)} onSave={(form) => { saveGrant(form); setViewingGrant(null); }} onDelete={viewingGrant.id ? (id) => { if (!window.confirm || window.confirm("이 지원사업을 삭제할까요?")) { deleteGrant(id); setViewingGrant(null); notify("삭제됨"); } } : null} />}
           {editingGrant && <GrantModal grant={editingGrant} onClose={() => setEditingGrant(null)} onSave={saveGrant} onDelete={editingGrant.id ? deleteGrant : null} />}
           {editingCompany && <CompanyModal company={editingCompany} onClose={() => setEditingCompany(null)} onSave={saveCompany} onDelete={editingCompany.id ? deleteCompany : null} />}
           {showFullCalendar && (
@@ -3931,7 +3957,6 @@
       );
     }
     function GrantDetailModal({ grant, onClose, onEdit, onSelect, onDelete }) {
-      const openUrl = safeUrl(grant.link);
       return (
         <div className="modal-backdrop">
           <div className="modal">
@@ -3942,13 +3967,12 @@
               <div className="detail-item"><span className="detail-label">지원 규모</span><div className="detail-value">{grant.budget || "-"}</div></div>
               <div className="detail-item"><span className="detail-label">지원 지역</span><div className="detail-value">{grant.region || "-"}</div></div>
               <div className="detail-item"><span className="detail-label">지원 대상 조건</span><div className="detail-value">{grant.condition || "-"}</div></div>
+              <div className="detail-item"><span className="detail-label">메모</span><div className="detail-value">{grant.memo || "-"}</div></div>
               <div className="detail-item"><span className="detail-label">공고 링크</span><div className="detail-value">{grant.link || "-"}</div></div>
             </div>
             <div className="modal-actions">
-              {openUrl && <a className="link-btn" href={openUrl} target="_blank" rel="noreferrer">공고 열기</a>}
               <div className="action-right">
                 <button className="text-btn danger" onClick={onDelete}>삭제</button>
-                <button className="text-btn" onClick={onSelect}>배정 선택</button>
                 <button className="text-btn" onClick={onEdit}>수정</button>
                 <button className="text-btn primary" onClick={onClose}>닫기</button>
               </div>
@@ -3959,18 +3983,19 @@
     }
 
     function GrantModal({ grant, onClose, onSave, onDelete }) {
-      const [form, setForm] = useState({ title: "", deadline: "", budget: "", region: "", condition: "", link: "", category: "", ...grant });
+      const [form, setForm] = useState({ title: "", deadline: "", budget: "", region: "", condition: "", link: "", category: "", memo: "", ...grant });
       return (
-        <div className="modal-backdrop">
-          <div className="modal">
-            <h2>{form.id ? "지원사업 수정" : "지원사업 추가"}</h2>
+        <div className="modal-backdrop" onPointerDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+          <div className="modal grant-edit-modal" onPointerDown={(event) => event.stopPropagation()}>
+            <h2>{form.id ? "지원사업 정보" : "지원사업 추가"}</h2>
             <div className="form-grid">
               <Field label="사업명"><input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></Field>
               <Field label="지원 구분"><select value={form.category || ""} onChange={(e) => setForm({ ...form, category: e.target.value })}><option value="">자동 분류</option>{grantCategories.map((category) => <option key={category} value={category}>{category}</option>)}</select></Field>
               <Field label="마감일"><input type="date" value={form.deadline} onChange={(e) => setForm({ ...form, deadline: e.target.value })} /></Field>
-              <Field label="지원 규모"><input value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} /></Field>
+              <Field label="지원 규모"><textarea value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} /></Field>
               <Field label="지원 지역"><input value={form.region} onChange={(e) => setForm({ ...form, region: e.target.value })} /></Field>
               <Field label="지원 대상 조건"><textarea value={form.condition} onChange={(e) => setForm({ ...form, condition: e.target.value })} /></Field>
+              <Field label="메모"><textarea value={form.memo || ""} onChange={(e) => setForm({ ...form, memo: e.target.value })} /></Field>
               <Field label="공고 링크"><input value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} /></Field>
             </div>
             <div className="modal-actions">
