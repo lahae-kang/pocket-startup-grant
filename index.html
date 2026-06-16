@@ -171,7 +171,7 @@
       min-width: 44px;
       text-align: center;
       padding: 2px 0;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 500;
     }
     .dday.urgent { color: #dc2626; }
@@ -689,6 +689,57 @@
     }
     .field textarea { min-height: 74px; resize: vertical; }
     .grant-edit-modal .field textarea { min-height: 104px; }
+    .check-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .check-pill {
+      min-height: 34px;
+      border: 1px solid #d3dde1;
+      border-radius: 999px;
+      background: #ffffff;
+      color: #26343c;
+      padding: 0 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .check-pill.selected {
+      border-color: #6b7280;
+      background: #f3f4f6;
+      color: #111827;
+      box-shadow: inset 0 0 0 1px #9ca3af;
+    }
+    .memo-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 6px;
+    }
+    .memo-bold-btn {
+      width: 30px;
+      height: 28px;
+      border: 1px solid #d3dde1;
+      border-radius: 7px;
+      background: #ffffff;
+      color: #111827;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .rich-memo {
+      min-height: 126px;
+      border: 1px solid #d3dde1;
+      border-radius: 8px;
+      padding: 10px;
+      outline: none;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
     .modal-actions { display: flex; justify-content: space-between; gap: 8px; margin-top: 14px; }
     .action-right { display: flex; gap: 8px; margin-left: auto; }
     .detail-list {
@@ -3730,8 +3781,8 @@
                 <div className="board-tabs">
                   {[
                     ["all", "전체"],
-                    ["active", "진행중"],
-                    ["pocket", "포켓 @"],
+                    ["active", "고객사"],
+                    ["pocket", "포켓"],
                     ["ended", "종료"],
                     ["log", "LOG"]
                   ].map(([key, label]) => (
@@ -3964,10 +4015,11 @@
             <div className="detail-list">
               <div className="detail-item"><span className="detail-label">사업명</span><div className="detail-value">{grant.title || "-"}</div></div>
               <div className="detail-item"><span className="detail-label">마감일</span><div className="detail-value">{grant.deadline || "-"} {grant.deadline ? `(${ddayLabel(grant.deadline)})` : ""}</div></div>
+              <div className="detail-item"><span className="detail-label">제출 서류</span><div className="detail-value">{(grant.documentTypes || []).join(", ") || "-"}</div></div>
               <div className="detail-item"><span className="detail-label">지원 규모</span><div className="detail-value">{grant.budget || "-"}</div></div>
               <div className="detail-item"><span className="detail-label">지원 지역</span><div className="detail-value">{grant.region || "-"}</div></div>
               <div className="detail-item"><span className="detail-label">지원 대상 조건</span><div className="detail-value">{grant.condition || "-"}</div></div>
-              <div className="detail-item"><span className="detail-label">메모</span><div className="detail-value">{grant.memo || "-"}</div></div>
+              <div className="detail-item"><span className="detail-label">메모</span><div className="detail-value" dangerouslySetInnerHTML={{ __html: grant.memo || "-" }} /></div>
               <div className="detail-item"><span className="detail-label">공고 링크</span><div className="detail-value">{grant.link || "-"}</div></div>
             </div>
             <div className="modal-actions">
@@ -3983,7 +4035,12 @@
     }
 
     function GrantModal({ grant, onClose, onSave, onDelete }) {
-      const [form, setForm] = useState({ title: "", deadline: "", budget: "", region: "", condition: "", link: "", category: "", memo: "", ...grant });
+      const initialDocuments = Array.isArray(grant.documentTypes) ? grant.documentTypes : [];
+      const [form, setForm] = useState({ title: "", deadline: "", budget: "", region: "", condition: "", link: "", category: "", memo: "", ...grant, documentTypes: initialDocuments });
+      const toggleDocumentType = (type) => {
+        const current = Array.isArray(form.documentTypes) ? form.documentTypes : [];
+        setForm({ ...form, documentTypes: current.includes(type) ? current.filter((item) => item !== type) : [...current, type] });
+      };
       return (
         <div className="modal-backdrop" onPointerDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
           <div className="modal grant-edit-modal" onPointerDown={(event) => event.stopPropagation()}>
@@ -3991,11 +4048,20 @@
             <div className="form-grid">
               <Field label="사업명"><input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></Field>
               <Field label="지원 구분"><select value={form.category || ""} onChange={(e) => setForm({ ...form, category: e.target.value })}><option value="">자동 분류</option>{grantCategories.map((category) => <option key={category} value={category}>{category}</option>)}</select></Field>
+              <Field label="제출 서류">
+                <div className="check-row">
+                  {["IR", "사업계획서"].map((type) => (
+                    <button type="button" className={`check-pill ${(form.documentTypes || []).includes(type) ? "selected" : ""}`} key={type} onClick={() => toggleDocumentType(type)}>
+                      {type}
+                    </button>
+                  ))}
+                </div>
+              </Field>
               <Field label="마감일"><input type="date" value={form.deadline} onChange={(e) => setForm({ ...form, deadline: e.target.value })} /></Field>
               <Field label="지원 규모"><textarea value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} /></Field>
               <Field label="지원 지역"><input value={form.region} onChange={(e) => setForm({ ...form, region: e.target.value })} /></Field>
               <Field label="지원 대상 조건"><textarea value={form.condition} onChange={(e) => setForm({ ...form, condition: e.target.value })} /></Field>
-              <Field label="메모"><textarea value={form.memo || ""} onChange={(e) => setForm({ ...form, memo: e.target.value })} /></Field>
+              <Field label="메모"><RichMemoEditor value={form.memo || ""} onChange={(value) => setForm({ ...form, memo: value })} /></Field>
               <Field label="공고 링크"><input value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} /></Field>
             </div>
             <div className="modal-actions">
@@ -4003,6 +4069,38 @@
               <div className="action-right"><button className="text-btn" onClick={onClose}>취소</button><button className="text-btn primary" disabled={!form.title.trim()} onClick={() => onSave(form)}>저장</button></div>
             </div>
           </div>
+        </div>
+      );
+    }
+    function RichMemoEditor({ value, onChange }) {
+      const editorRef = useRef(null);
+      useEffect(() => {
+        const editor = editorRef.current;
+        if (editor && document.activeElement !== editor && editor.innerHTML !== value) editor.innerHTML = value || "";
+      }, [value]);
+      const applyBold = () => {
+        editorRef.current?.focus();
+        if (document.execCommand) document.execCommand("bold", false, null);
+        onChange(editorRef.current?.innerHTML || "");
+      };
+      return (
+        <div>
+          <div className="memo-toolbar">
+            <button className="memo-bold-btn" type="button" title="굵게 Ctrl+B" onMouseDown={(event) => { event.preventDefault(); applyBold(); }}>B</button>
+          </div>
+          <div
+            className="rich-memo"
+            ref={editorRef}
+            contentEditable
+            suppressContentEditableWarning
+            onInput={(event) => onChange(event.currentTarget.innerHTML)}
+            onKeyDown={(event) => {
+              if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "b") {
+                event.preventDefault();
+                applyBold();
+              }
+            }}
+          />
         </div>
       );
     }
