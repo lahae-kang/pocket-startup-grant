@@ -7,7 +7,7 @@
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
   <style>
     @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css");
     * { box-sizing: border-box; }
@@ -4091,8 +4091,8 @@
           <div
             className="rich-memo"
             ref={editorRef}
-            contentEditable
-            suppressContentEditableWarning
+            contentEditable={true}
+            suppressContentEditableWarning={true}
             onInput={(event) => onChange(event.currentTarget.innerHTML)}
             onKeyDown={(event) => {
               if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "b") {
@@ -4100,7 +4100,7 @@
                 applyBold();
               }
             }}
-          />
+          ></div>
         </div>
       );
     }
