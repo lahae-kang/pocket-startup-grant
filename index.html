@@ -242,20 +242,22 @@
       flex-wrap: wrap;
     }
     .board-tab {
-      height: 32px;
-      border: 1px solid #cfd8dc;
+      height: 30px;
+      border: 1px solid #d7e0e4;
       background: #ffffff;
       color: #39474f;
-      border-radius: 999px;
-      padding: 0 12px;
+      border-radius: 7px;
+      padding: 0 14px;
       cursor: pointer;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 500;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
     }
     .board-tab.active {
-      background: #2563eb;
-      border-color: #2563eb;
+      background: #172026;
+      border-color: #172026;
       color: #ffffff;
+      box-shadow: 0 5px 14px rgba(15, 23, 42, 0.16);
     }
     .board-tab.log-tab,
     .board-tab.log-tab.active {
@@ -284,29 +286,40 @@
       overflow: auto;
       display: flex;
       flex-direction: column;
-      padding: 14px;
-      gap: 12px;
+      padding: 10px 14px 8px;
+      gap: 8px;
       background: #f9fbfb;
     }
     .company-line {
       display: flex;
       align-items: stretch;
       gap: 12px;
-      min-height: 356px;
-      flex: 0 0 356px;
+      min-height: 324px;
+      flex: 0 0 324px;
     }
     .company-column {
       width: 252px;
       min-width: 252px;
       max-width: 292px;
       height: 100%;
-      min-height: 356px;
+      min-height: 330px;
       background: #ffffff;
       border: 1px solid #dfe5e8;
       border-radius: 8px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
+    }
+    .company-column.pocket-company {
+      background: #f6f7f8;
+      border-color: #e1e6e9;
+      opacity: 0.82;
+    }
+    .company-column.pocket-company .company-top {
+      background: linear-gradient(180deg, #f2f4f5 0%, #f8f9fa 76%, #ffffff 100%);
+    }
+    .company-column.pocket-company .assignment-list {
+      background: linear-gradient(180deg, #ffffff 0%, #f7f8f9 42px, #f7f8f9 100%);
     }
     .company-column.drag-target {
       border-color: #7da0ff;
@@ -434,7 +447,7 @@
       align-items: center;
       justify-content: flex-end;
       gap: 4px;
-      margin-top: 8px;
+      margin-top: 0;
     }
     .dots { display: flex; align-items: center; gap: 4px; margin-left: auto; }
     .dot {
@@ -451,7 +464,7 @@
     .assignment-list {
       flex: 1;
       overflow: hidden;
-      padding: 4px 10px 8px;
+      padding: 4px 10px 4px;
       background: linear-gradient(180deg, #ffffff 0%, #fbfcfc 42px, #fbfcfc 100%);
     }
     .assignment-list.has-visible-assignments {
@@ -483,7 +496,7 @@
       border-radius: 8px;
       background: #ffffff;
       border: 1px solid #dfe7ea;
-      margin: 0 auto 6px;
+      margin: 0 auto 8px;
       box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
     }
     .assigned-tab:hover {
@@ -491,19 +504,31 @@
       box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
     }
     .assigned-title {
-      font-size: 13px;
+      font-size: 13.5px;
       font-weight: 500;
       line-height: 1.35;
-      margin-bottom: 6px;
+      margin-top: 6px;
+      margin-bottom: 0;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       max-width: 172px;
     }
-    .assignment-bottom {
+    .assigned-title.inline {
+      margin-top: 0;
+      max-width: 124px;
+    }
+    .assigned-tab .dday {
+      font-size: 12.5px;
+    }
+    .assigned-tab.compact-done {
+      padding-top: 9px;
+      padding-bottom: 9px;
+    }
+    .assignment-topline {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
       gap: 8px;
       min-height: 24px;
     }
@@ -522,8 +547,9 @@
       color: #59676f;
       border-radius: 7px;
       padding: 0 7px;
+      min-width: 38px;
       cursor: pointer;
-      font-size: 11px;
+      font-size: 11.5px;
       font-weight: 400;
       font-family: inherit;
       line-height: 1;
@@ -861,6 +887,12 @@
       border-color: #93b4ff;
       background: #f6f9ff;
     }
+    .calendar-day.meeting-target,
+    .full-calendar-day.meeting-target {
+      border-color: #2563eb;
+      background: #eff6ff;
+      box-shadow: inset 0 0 0 2px rgba(37, 99, 235, 0.16);
+    }
     .calendar-day.drag-over {
       border-color: #2563eb;
       box-shadow: inset 0 0 0 2px rgba(37, 99, 235, 0.18);
@@ -888,8 +920,8 @@
     }
     .schedule-item {
       border-radius: 7px;
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
+      background: #f4f7fa;
+      border: 1px solid #d4dde4;
       padding: 6px 7px;
       margin-bottom: 6px;
       color: #172026;
@@ -897,6 +929,7 @@
       line-height: 1.35;
       position: relative;
       padding-right: 52px;
+      touch-action: none;
     }
     .schedule-meeting {
       display: flex;
@@ -909,7 +942,7 @@
     }
     .meeting-time {
       flex: 0 0 auto;
-      color: #2563eb;
+      color: #475569;
       font-size: 12px;
       font-weight: 500;
       white-space: nowrap;
@@ -930,10 +963,20 @@
       background: transparent;
       border: 0;
       box-shadow: none;
-      padding: 2px 0;
-      margin-bottom: 4px;
+      padding: 1px 0;
+      margin-bottom: 1px;
       color: #39474f;
       cursor: pointer;
+    }
+    .schedule-deadline.ready-deadline {
+      color: #b91c1c;
+    }
+    .schedule-deadline.ready-deadline .deadline-label {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+    .schedule-deadline.ready-deadline .deadline-title {
+      color: #b91c1c;
     }
     .deadline-label {
       flex: 0 0 auto;
@@ -962,7 +1005,8 @@
     }
     .deadline-list {
       margin-top: auto;
-      padding-top: 4px;
+      padding-top: 2px;
+      padding-bottom: 0;
     }
     .schedule-company {
       color: #59676f;
@@ -1040,7 +1084,7 @@
       border: 1px solid #dfe7ea;
       border-radius: 8px;
       background: #fbfcfc;
-      padding: 8px;
+      padding: 6px;
       overflow: auto;
       display: flex;
       flex-direction: column;
@@ -1066,7 +1110,17 @@
     .full-calendar-day .schedule-deadline {
       width: auto;
       min-width: 0;
-      padding: 2px 0;
+      padding: 1px 0;
+      margin-bottom: 1px;
+      gap: 4px;
+    }
+    .full-calendar-day .deadline-label {
+      height: 16px;
+      padding: 0 4px;
+      font-size: 9px;
+    }
+    .full-calendar-day .deadline-title {
+      font-size: 10px;
     }
     .full-calendar-day .schedule-company {
       font-size: 11px;
@@ -1753,11 +1807,11 @@
       justify-content: center;
       font-size: 13px;
       font-weight: 600;
-      padding: 14px 8px;
+      padding: 17px 8px;
     }
     .customer-add-body {
       min-width: 0;
-      padding: 13px 14px;
+      padding: 16px 14px;
     }
     .customer-add-card h4 {
       margin: 0;
@@ -2399,6 +2453,11 @@
       if (status === "done") return "완료";
       if (status === "ready") return "준비";
       return "미배정";
+    }
+    function nextStatus(status) {
+      if (status === "ready") return "done";
+      if (status === "done") return "passed";
+      return "ready";
     }
     const memoryStorage = {
       async get(key) { return window.__artifactMemoryStore?.[key] || null; },
@@ -3119,13 +3178,14 @@
       const [schedules, setSchedules] = useState([]);
       const [logs, setLogs] = useState([]);
       const [schedulePick, setSchedulePick] = useState(null);
-      const [calendarHeight, setCalendarHeight] = useState(190);
+      const [calendarHeight, setCalendarHeight] = useState(220);
       const [showFullCalendar, setShowFullCalendar] = useState(false);
       const [fullCalendarBase, setFullCalendarBase] = useState(todayKey());
       const [loaded, setLoaded] = useState(false);
       const grantRefs = useRef({});
       const assignmentListRefs = useRef({});
       const companyClickTimer = useRef(null);
+      const scheduleClickBlockRef = useRef("");
       useEffect(() => {
         storageRead().then((saved) => {
           if (saved?.grants && saved?.companies) {
@@ -3133,7 +3193,7 @@
             setCompanies(saved.companies);
             setSchedules(saved.schedules || []);
             setLogs(saved.logs || []);
-            if (saved.calendarHeight) setCalendarHeight(Math.max(190, saved.calendarHeight));
+            if (saved.calendarHeight) setCalendarHeight(Math.max(220, saved.calendarHeight));
           }
           setLoaded(true);
         });
@@ -3174,8 +3234,6 @@
           if (activeCompanyTab === "log") return false;
           if (activeCompanyTab === "ended") return !!company.contractEnded;
           if (company.contractEnded) return false;
-          if (activeCompanyTab === "pocket") return isPocketCompany(company);
-          if (activeCompanyTab === "active") return !isPocketCompany(company);
           return true;
         }).sort((a, b) => {
           if (!!a.pinned !== !!b.pinned) return Number(!!b.pinned) - Number(!!a.pinned);
@@ -3308,6 +3366,8 @@
           setSchedules((current) => current.filter((schedule) => schedule.id !== undo.schedule.id));
         } else if (undo.type === "removeSchedule") {
           setSchedules((current) => current.some((schedule) => schedule.id === undo.schedule.id) ? current : [...current, undo.schedule]);
+        } else if (undo.type === "moveSchedule") {
+          setSchedules((current) => current.map((schedule) => schedule.id === undo.scheduleId ? { ...schedule, date: undo.previousDate } : schedule));
         } else if (undo.type === "saveCompany") {
           setCompanies((current) => undo.isNew ? current.filter((company) => company.id !== undo.company.id) : current.map((company) => company.id === undo.company.id ? undo.company : company));
         } else if (undo.type === "deleteCompany") {
@@ -3400,22 +3460,60 @@
         const companyName = companies.find((company) => company.id === companyId)?.name || "기업";
         const time = window.prompt?.(`${companyName} 미팅 시간을 입력하세요`, "10:00");
         if (time === null || time === undefined) return false;
-        const trimmedTime = String(time).trim();
+        const trimmedTime = normalizeMeetingTime(time);
         if (!trimmedTime) {
           notify("시간을 입력해야 합니다");
           return false;
         }
+        const exists = schedules.some((item) => item.type === "meeting" && item.date === date && item.companyId === companyId && item.time === trimmedTime);
+        if (exists) {
+          notify("이미 등록된 미팅입니다");
+          return false;
+        }
         const schedule = { id: uid("s"), type: "meeting", date, companyId, time: trimmedTime };
         setSchedules((current) => [...current, schedule]);
-        notify("미팅 일정 등록됨");
+        notify("일정 등록됨");
         addLog("미팅 등록", `${date} ${trimmedTime} / ${companyName}`, { type: "addSchedule", schedule });
         return true;
+      }
+      function normalizeMeetingTime(value) {
+        const raw = String(value || "").trim();
+        if (!raw) return "";
+        const digits = raw.replace(/[^\d]/g, "");
+        if (/^\d{1,2}$/.test(digits)) {
+          const hour = Math.max(0, Math.min(23, Number(digits)));
+          return `${String(hour).padStart(2, "0")}:00`;
+        }
+        if (/^\d{3,4}$/.test(digits)) {
+          const padded = digits.padStart(4, "0");
+          const hour = Math.max(0, Math.min(23, Number(padded.slice(0, 2))));
+          const minute = Math.max(0, Math.min(59, Number(padded.slice(2, 4))));
+          return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+        }
+        const match = raw.match(/^(\d{1,2})\s*:\s*(\d{1,2})$/);
+        if (match) {
+          const hour = Math.max(0, Math.min(23, Number(match[1])));
+          const minute = Math.max(0, Math.min(59, Number(match[2])));
+          return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+        }
+        return raw;
+      }
+      function isReadyDeadlineGrant(grantId) {
+        return companies.some((company) => (company.assignedGrantIds || []).includes(grantId) && assignmentStatus(company, grantId) === "ready");
+      }
+      function startScheduleMove(event, schedule) {
+        if (event.target?.closest?.("button, a, input, textarea, label")) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const companyName = companies.find((company) => company.id === schedule.companyId)?.name || "기업";
+        const grantTitle = schedule.type === "meeting" ? companyName : grantMap[schedule.grantId]?.title || "지원사업";
+        setDrag({ scheduleMove: true, scheduleId: schedule.id, title: grantTitle, x: event.clientX, y: event.clientY, startX: event.clientX, startY: event.clientY, moved: false });
       }
       function removeSchedule(id) {
         const schedule = schedules.find((item) => item.id === id);
         if (schedule) {
           const companyName = companies.find((company) => company.id === schedule.companyId)?.name || "기업";
-          const scheduleTitle = schedule.type === "meeting" ? `미팅 ${schedule.time || ""}`.trim() : grantMap[schedule.grantId]?.title || "지원사업";
+          const scheduleTitle = schedule.type === "meeting" ? `${schedule.time || ""} ${companyName}`.trim() : grantMap[schedule.grantId]?.title || "지원사업";
           addLog("스케줄 삭제", `${schedule.date} / ${companyName} / ${scheduleTitle}`, { type: "removeSchedule", schedule });
         }
         setSchedules((current) => current.filter((item) => item.id !== id));
@@ -3431,7 +3529,7 @@
         const startY = event.clientY;
         const startHeight = calendarHeight;
         function move(moveEvent) {
-          const nextHeight = Math.max(58, Math.min(300, startHeight - (moveEvent.clientY - startY)));
+          const nextHeight = Math.max(78, Math.min(320, startHeight - (moveEvent.clientY - startY)));
           setCalendarHeight(nextHeight);
         }
         function up() {
@@ -3512,6 +3610,36 @@
           insertVisibleIndex: Math.max(0, visibleIndex),
           marker: rect ? { left: rect.left - 7, top: rect.top, height: rect.height } : null
         });
+      }
+      function calendarDateFromPoint(x, y) {
+        const direct = document.elementFromPoint(x, y)?.closest?.("[data-calendar-date]");
+        if (direct?.dataset?.calendarDate) return direct.dataset.calendarDate;
+        const days = Array.from(document.querySelectorAll("[data-calendar-date]"));
+        for (const day of days) {
+          const rect = day.getBoundingClientRect();
+          if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) return day.dataset.calendarDate || "";
+        }
+        const shells = Array.from(document.querySelectorAll(".calendar-grid, .full-calendar"));
+        const activeShell = shells.find((shell) => {
+          const rect = shell.getBoundingClientRect();
+          return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+        });
+        if (activeShell) {
+          let nearest = null;
+          let nearestDistance = Infinity;
+          Array.from(activeShell.querySelectorAll("[data-calendar-date]")).forEach((day) => {
+            const rect = day.getBoundingClientRect();
+            const clampedX = Math.max(rect.left, Math.min(x, rect.right));
+            const clampedY = Math.max(rect.top, Math.min(y, rect.bottom));
+            const distance = Math.hypot(x - clampedX, y - clampedY);
+            if (distance < nearestDistance) {
+              nearestDistance = distance;
+              nearest = day;
+            }
+          });
+          if (nearest?.dataset?.calendarDate) return nearest.dataset.calendarDate;
+        }
+        return "";
       }
       function companyInsertPlacement(event) {
         const nodes = Array.from(document.querySelectorAll(".company-column[data-company-id]"));
@@ -3594,6 +3722,23 @@
           const current = drag;
           const target = document.elementFromPoint(event.clientX, event.clientY);
           const calendarDay = target?.closest?.("[data-calendar-date]");
+          if (current.scheduleMove && current.moved && calendarDay?.dataset?.calendarDate) {
+            const date = calendarDay.dataset.calendarDate;
+            const schedule = schedules.find((item) => item.id === current.scheduleId);
+            if (schedule && schedule.date !== date) {
+              setSchedules((items) => items.map((item) => item.id === current.scheduleId ? { ...item, date } : item));
+              scheduleClickBlockRef.current = current.scheduleId;
+              window.setTimeout(() => { if (scheduleClickBlockRef.current === current.scheduleId) scheduleClickBlockRef.current = ""; }, 80);
+              notify("일정 이동됨");
+              addLog("스케줄 이동", `${schedule.date} → ${date} / ${current.title}`, { type: "moveSchedule", scheduleId: schedule.id, previousDate: schedule.date });
+            }
+            setDrag(null);
+            return;
+          }
+          if (current.scheduleMove) {
+            setDrag(null);
+            return;
+          }
           if (current.scheduleMode && current.moved && calendarDay?.dataset?.calendarDate) {
             const date = calendarDay.dataset.calendarDate;
             const exists = schedules.some((item) => item.date === date && item.companyId === current.companyId && item.grantId === current.grantId);
@@ -3632,12 +3777,26 @@
       useEffect(() => {
         if (!companyDrag) return;
         function move(event) {
+          const meetingDate = calendarDateFromPoint(event.clientX, event.clientY);
+          if (meetingDate) {
+            setCompanyDrag((current) => current ? {
+              ...current,
+              x: event.clientX,
+              y: event.clientY,
+              moved: current.moved || Math.hypot(event.clientX - current.startX, event.clientY - current.startY) > 6,
+              meetingDate,
+              overCompanyId: "",
+              marker: null
+            } : null);
+            return;
+          }
           const placement = companyInsertPlacement(event);
           setCompanyDrag((current) => current ? {
             ...current,
             x: event.clientX,
             y: event.clientY,
             moved: current.moved || Math.hypot(event.clientX - current.startX, event.clientY - current.startY) > 6,
+            meetingDate: "",
             overCompanyId: placement?.companyId || "",
             insertAfter: !!placement?.insertAfter,
             insertVisibleIndex: placement?.insertVisibleIndex ?? current.insertVisibleIndex,
@@ -3646,15 +3805,17 @@
         }
         function up(event) {
           const current = companyDrag;
-          const target = document.elementFromPoint(event.clientX, event.clientY);
-          const calendarDay = target?.closest?.("[data-calendar-date]");
-          if (current.moved && calendarDay?.dataset?.calendarDate) {
-            addMeetingSchedule(calendarDay.dataset.calendarDate, current.companyId);
+          const movedAtDrop = current.moved || Math.hypot(event.clientX - current.startX, event.clientY - current.startY) > 6;
+          const meetingDateAtDrop = calendarDateFromPoint(event.clientX, event.clientY) || current.meetingDate || "";
+          if (movedAtDrop && meetingDateAtDrop) {
+            const meetingDate = meetingDateAtDrop;
+            const meetingCompanyId = current.companyId;
             setCompanyDrag(null);
+            window.setTimeout(() => addMeetingSchedule(meetingDate, meetingCompanyId), 0);
             return;
           }
           const placement = companyInsertPlacement(event);
-          if (current.moved && placement?.companyId) {
+          if (movedAtDrop && placement?.companyId) {
             const previousOrder = companies.map((company) => company.id);
             setCompanies((currentCompanies) => {
               const currentMap = Object.fromEntries(currentCompanies.map((company) => [company.id, company]));
@@ -3672,7 +3833,7 @@
             });
             const movedCompany = companies.find((company) => company.id === current.companyId);
             if (movedCompany) addLog("기업 위치 이동", movedCompany.name, { type: "moveCompany", order: previousOrder });
-          } else if (!current.moved) {
+          } else if (!movedAtDrop) {
             if (selectedGrantId) assignGrant(current.companyId, selectedGrantId);
             else {
               const company = companies.find((item) => item.id === current.companyId);
@@ -3781,8 +3942,6 @@
                 <div className="board-tabs">
                   {[
                     ["all", "전체"],
-                    ["active", "고객사"],
-                    ["pocket", "포켓"],
                     ["ended", "종료"],
                     ["log", "LOG"]
                   ].map(([key, label]) => (
@@ -3813,7 +3972,7 @@
                   {line.map((item) => {
                     const company = item.company;
                     return (
-                    <section className={`company-column ${companyDrag?.companyId === company.id ? "drag-target" : ""}`} key={company.id} data-company-id={company.id}>
+                    <section className={`company-column ${isPocketCompany(company) ? "pocket-company" : ""} ${companyDrag?.companyId === company.id ? "drag-target" : ""}`} key={company.id} data-company-id={company.id}>
                   <div className="company-top" onPointerDown={(event) => startCompanyMove(event, company)} onDoubleClick={(event) => { event.preventDefault(); event.stopPropagation(); toggleCompanyPinned(company); }}>
                     <div className="company-controls">
                       {company.contractEnded && <span className="ended-pill">종료</span>}
@@ -3834,16 +3993,15 @@
                       </div>
                     </div>
                     <div className="round-row" onClick={(e) => e.stopPropagation()}>
-                      <span className="subtle">현재 회차</span>
+                      <div className="company-page-switch">
+                        <button className="page-btn" disabled={isPocketCompany(company) || Number(company.round || 0) <= 1} onClick={() => updateCompanyRound(company, company.round - 1)}>‹</button>
+                        <button className="page-btn" onClick={() => updateCompanyRound(company, Number(company.round || 0) + 1)}>›</button>
+                      </div>
                       <div className="stepper">
                         <button className="round-btn" onClick={() => updateCompanyRound(company, company.round - 1)}>−</button>
                         <span className={`round-value ${isPocketCompany(company) ? "pocket" : ""}`}>{roundLabel(company)}</span>
                         <button className="round-btn" onClick={() => updateCompanyRound(company, company.round + 1)}>＋</button>
                       </div>
-                    </div>
-                    <div className="company-page-switch" onClick={(e) => e.stopPropagation()}>
-                      <button className="page-btn" disabled={isPocketCompany(company) || Number(company.round || 0) <= 1} onClick={() => updateCompanyRound(company, company.round - 1)}>‹</button>
-                      <button className="page-btn" onClick={() => updateCompanyRound(company, Number(company.round || 0) + 1)}>›</button>
                     </div>
                   </div>
                   <div className={`assignment-list ${sortedAssignedGrantIds(company, grantMap).slice(currentCycleStart(company), currentCycleStart(company) + (Number(company.monthlyTarget) || 1)).length > 0 ? "has-visible-assignments" : ""}`} ref={(node) => { assignmentListRefs.current[company.id] = node; }} onClick={() => selectedGrantId && assignGrant(company.id, selectedGrantId)}>
@@ -3851,19 +4009,21 @@
                       const index = currentCycleStart(company) + pageIndex;
                       const grant = grantMap[grantId];
                       if (!grant) return null;
+                      const deadlineDiff = dayDiff(grant.deadline);
+                      const currentStatus = assignmentStatus(company, grantId);
+                      const isReadyStatus = currentStatus === "ready";
                       return (
                         <React.Fragment key={grantId}>
-                          <div className="assigned-tab" data-assignment-index={index} onPointerDown={(e) => startAssignedScheduleDrag(e, company.id, grantId, grant.title)} onClick={(e) => e.stopPropagation()}>
+                          <div className={`assigned-tab ${!isReadyStatus ? "compact-done" : ""}`} data-assignment-index={index} onPointerDown={(e) => startAssignedScheduleDrag(e, company.id, grantId, grant.title)} onClick={(e) => e.stopPropagation()}>
                             <div>
-                              <div className="assigned-title">{compactAssignedTitle(grant.title)}</div>
-                              <div className="assignment-bottom">
-                                <span className={ddayClass(grant.deadline)}>{ddayLabel(grant.deadline)}</span>
+                              <div className="assignment-topline">
                                 <div className="status-toggle" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
-                                  <button className={`status-btn ready ${assignmentStatus(company, grantId) === "ready" ? "active" : ""}`} onClick={(e) => { e.stopPropagation(); updateAssignmentStatus(company.id, grantId, "ready"); }}>준비</button>
-                                  <button className={`status-btn done ${assignmentStatus(company, grantId) === "done" ? "active" : ""}`} onClick={(e) => { e.stopPropagation(); updateAssignmentStatus(company.id, grantId, "done"); }}>완료</button>
-                                  <button className={`status-btn passed ${assignmentStatus(company, grantId) === "passed" ? "active" : ""}`} onClick={(e) => { e.stopPropagation(); updateAssignmentStatus(company.id, grantId, "passed"); }}>{assignmentResult(company, grantId) ? assignmentResultLabel(assignmentResult(company, grantId)) : "합격"}</button>
+                                  <button className={`status-btn ${currentStatus} active`} onClick={(e) => { e.stopPropagation(); updateAssignmentStatus(company.id, grantId, nextStatus(currentStatus)); }}>{statusLabel(currentStatus)}</button>
                                 </div>
+                                {isReadyStatus && grant.deadline && deadlineDiff !== null && deadlineDiff >= 0 && <span className={ddayClass(grant.deadline)}>{ddayLabel(grant.deadline)}</span>}
+                                {!isReadyStatus && <div className="assigned-title inline">{compactAssignedTitle(grant.title)}</div>}
                               </div>
+                              {isReadyStatus && <div className="assigned-title">{compactAssignedTitle(grant.title)}</div>}
                             </div>
                             <button className="remove" title="제거" onClick={(e) => { e.stopPropagation(); removeAssignment(company.id, grantId); }}>×</button>
                           </div>
@@ -3897,7 +4057,7 @@
                   const dateSchedules = schedules.filter((item) => item.date === date);
                   const deadlineGrants = deadlineGrantsForDate(date, grants);
                   return (
-                    <div className={`calendar-day ${date === todayKey() ? "today" : ""} ${schedulePick ? "selecting" : ""}`} key={date} data-calendar-date={date} onClick={() => addSchedule(date)}>
+                    <div className={`calendar-day ${date === todayKey() ? "today" : ""} ${schedulePick ? "selecting" : ""} ${companyDrag?.meetingDate === date ? "meeting-target" : ""}`} key={date} data-calendar-date={date} onClick={() => addSchedule(date)}>
                       <div className="calendar-date"><span>{shortDateLabel(date)}</span><span className="calendar-weekday">{weekdayLabel(date)}</span></div>
                       <div className="schedule-main-list">
                         {dateSchedules.map((item) => {
@@ -3906,15 +4066,15 @@
                           if (!company) return null;
                           if (item.type === "meeting") {
                             return (
-                              <div className="schedule-item schedule-meeting" key={item.id} title="클릭하면 일정 삭제" onClick={(e) => { e.stopPropagation(); removeSchedule(item.id); }}>
+                              <div className="schedule-item schedule-meeting" key={item.id} title="드래그하면 이동, 클릭하면 삭제" onPointerDown={(e) => startScheduleMove(e, item)} onClick={(e) => { e.stopPropagation(); if (scheduleClickBlockRef.current === item.id) return; removeSchedule(item.id); }}>
                                 <span className="meeting-time">{item.time}</span>
-                                <span className="meeting-title">{company.name} 미팅</span>
+                                <span className="meeting-title">{company.name}</span>
                               </div>
                             );
                           }
                           if (!grant) return null;
                           return (
-                            <div className="schedule-item" key={item.id} title="클릭하면 일정 삭제" onClick={(e) => { e.stopPropagation(); removeSchedule(item.id); }}>
+                            <div className="schedule-item" key={item.id} title="드래그하면 이동, 클릭하면 삭제" onPointerDown={(e) => startScheduleMove(e, item)} onClick={(e) => { e.stopPropagation(); if (scheduleClickBlockRef.current === item.id) return; removeSchedule(item.id); }}>
                               <div className="schedule-company">{company.name}</div>
                               <div className="schedule-title">{compactAssignedTitle(grant.title)}</div>
                               <div className={`${ddayClass(grant.deadline)} schedule-meta`}>{ddayLabel(grant.deadline)}</div>
@@ -3924,7 +4084,7 @@
                       </div>
                       <div className="deadline-list">
                         {deadlineGrants.map((grant) => (
-                          <div className="schedule-item schedule-deadline" key={`deadline-${grant.id}`} title="클릭하면 지원사업 정보" onClick={(e) => { e.stopPropagation(); setViewingGrant(grant); }}>
+                          <div className={`schedule-item schedule-deadline ${isReadyDeadlineGrant(grant.id) ? "ready-deadline" : ""}`} key={`deadline-${grant.id}`} title="클릭하면 지원사업 정보" onClick={(e) => { e.stopPropagation(); setViewingGrant(grant); }}>
                             <span className="deadline-label">마감</span>
                             <span className="deadline-title">{compactAssignedTitle(grant.title)}</span>
                           </div>
@@ -3939,7 +4099,7 @@
             )}
           </main>
           {drag && <div className="drag-preview" style={{ left: drag.x, top: drag.y }}><span className="copy-mark">복사</span><div>{drag.title}</div></div>}
-          {companyDrag && <div className="company-drag-preview" style={{ left: companyDrag.x, top: companyDrag.y }}>기업 위치 이동<br />{companyDrag.name}</div>}
+          {companyDrag && <div className="company-drag-preview" style={{ left: companyDrag.x, top: companyDrag.y }}>{companyDrag.meetingDate ? "미팅 일정 등록" : "기업 위치 이동"}<br />{companyDrag.name}</div>}
           {companyDrag?.marker && <div className="company-insert-marker" style={{ left: companyDrag.marker.left, top: companyDrag.marker.top, height: companyDrag.marker.height }} />}
           {toast && <div className="toast">{toast}</div>}
           {viewingGrant && <GrantModal grant={viewingGrant} onClose={() => setViewingGrant(null)} onSave={(form) => { saveGrant(form); setViewingGrant(null); }} onDelete={viewingGrant.id ? (id) => { if (!window.confirm || window.confirm("이 지원사업을 삭제할까요?")) { deleteGrant(id); setViewingGrant(null); notify("삭제됨"); } } : null} />}
@@ -3962,7 +4122,7 @@
                     const dateSchedules = schedules.filter((item) => item.date === date);
                     const deadlineGrants = deadlineGrantsForDate(date, grants);
                     return (
-                      <div className={`full-calendar-day ${date === todayKey() ? "today" : ""} ${isSameMonth(date, fullCalendarBase) ? "" : "out-month"}`} key={date}>
+                      <div className={`full-calendar-day ${date === todayKey() ? "today" : ""} ${isSameMonth(date, fullCalendarBase) ? "" : "out-month"} ${companyDrag?.meetingDate === date ? "meeting-target" : ""}`} key={date} data-calendar-date={date}>
                         <div className="calendar-date"><span>{shortDateLabel(date)}</span></div>
                         <div className="schedule-main-list">
                           {dateSchedules.map((item) => {
@@ -3971,15 +4131,15 @@
                             if (!company) return null;
                             if (item.type === "meeting") {
                               return (
-                                <div className="schedule-item schedule-meeting" key={item.id} title="클릭하면 일정 삭제" onClick={() => removeSchedule(item.id)}>
+                                <div className="schedule-item schedule-meeting" key={item.id} title="드래그하면 일정 이동" onPointerDown={(e) => startScheduleMove(e, item)} onClick={(e) => e.stopPropagation()}>
                                   <span className="meeting-time">{item.time}</span>
-                                  <span className="meeting-title">{company.name} 미팅</span>
+                                  <span className="meeting-title">{company.name}</span>
                                 </div>
                               );
                             }
                             if (!grant) return null;
                             return (
-                              <div className="schedule-item" key={item.id} title="클릭하면 일정 삭제" onClick={() => removeSchedule(item.id)}>
+                              <div className="schedule-item" key={item.id} title="드래그하면 일정 이동" onPointerDown={(e) => startScheduleMove(e, item)} onClick={(e) => e.stopPropagation()}>
                                 <div className="schedule-company">{company.name}</div>
                                 <div className="schedule-title">{grant.title}</div>
                               </div>
@@ -3988,7 +4148,7 @@
                         </div>
                         <div className="deadline-list">
                           {deadlineGrants.map((grant) => (
-                            <div className="schedule-item schedule-deadline" key={`deadline-${grant.id}`} title="클릭하면 지원사업 정보" onClick={() => setViewingGrant(grant)}>
+                            <div className={`schedule-item schedule-deadline ${isReadyDeadlineGrant(grant.id) ? "ready-deadline" : ""}`} key={`deadline-${grant.id}`} title="클릭하면 지원사업 정보" onClick={() => setViewingGrant(grant)}>
                               <span className="deadline-label">마감</span>
                               <span className="deadline-title">{grant.title}</span>
                             </div>
@@ -4015,7 +4175,7 @@
             <div className="detail-list">
               <div className="detail-item"><span className="detail-label">사업명</span><div className="detail-value">{grant.title || "-"}</div></div>
               <div className="detail-item"><span className="detail-label">마감일</span><div className="detail-value">{grant.deadline || "-"} {grant.deadline ? `(${ddayLabel(grant.deadline)})` : ""}</div></div>
-              <div className="detail-item"><span className="detail-label">제출 서류</span><div className="detail-value">{(grant.documentTypes || []).join(", ") || "-"}</div></div>
+              <div className="detail-item"><span className="detail-label">제출 서류</span><div className="detail-value">{[...(grant.documentTypes || []), (grant.documentTypes || []).includes("그 외") ? grant.documentOther : ""].filter(Boolean).join(", ") || "-"}</div></div>
               <div className="detail-item"><span className="detail-label">지원 규모</span><div className="detail-value">{grant.budget || "-"}</div></div>
               <div className="detail-item"><span className="detail-label">지원 지역</span><div className="detail-value">{grant.region || "-"}</div></div>
               <div className="detail-item"><span className="detail-label">지원 대상 조건</span><div className="detail-value">{grant.condition || "-"}</div></div>
@@ -4036,13 +4196,21 @@
 
     function GrantModal({ grant, onClose, onSave, onDelete }) {
       const initialDocuments = Array.isArray(grant.documentTypes) ? grant.documentTypes : [];
-      const [form, setForm] = useState({ title: "", deadline: "", budget: "", region: "", condition: "", link: "", category: "", memo: "", ...grant, documentTypes: initialDocuments });
+      const [form, setForm] = useState({ title: "", deadline: "", budget: "", region: "", condition: "", link: "", category: "", memo: "", documentOther: "", ...grant, documentTypes: initialDocuments });
       const toggleDocumentType = (type) => {
         const current = Array.isArray(form.documentTypes) ? form.documentTypes : [];
         setForm({ ...form, documentTypes: current.includes(type) ? current.filter((item) => item !== type) : [...current, type] });
       };
+      const preparedForm = () => ({
+        ...form,
+        documentOther: (form.documentTypes || []).includes("그 외") ? form.documentOther || "" : ""
+      });
+      const autoSaveAndClose = () => {
+        if (form.title.trim()) onSave(preparedForm());
+        else onClose();
+      };
       return (
-        <div className="modal-backdrop" onPointerDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+        <div className="modal-backdrop" onPointerDown={(event) => { if (event.target === event.currentTarget) autoSaveAndClose(); }}>
           <div className="modal grant-edit-modal" onPointerDown={(event) => event.stopPropagation()}>
             <h2>{form.id ? "지원사업 정보" : "지원사업 추가"}</h2>
             <div className="form-grid">
@@ -4050,12 +4218,13 @@
               <Field label="지원 구분"><select value={form.category || ""} onChange={(e) => setForm({ ...form, category: e.target.value })}><option value="">자동 분류</option>{grantCategories.map((category) => <option key={category} value={category}>{category}</option>)}</select></Field>
               <Field label="제출 서류">
                 <div className="check-row">
-                  {["IR", "사업계획서"].map((type) => (
+                  {["IR", "사업계획서", "그 외"].map((type) => (
                     <button type="button" className={`check-pill ${(form.documentTypes || []).includes(type) ? "selected" : ""}`} key={type} onClick={() => toggleDocumentType(type)}>
                       {type}
                     </button>
                   ))}
                 </div>
+                {(form.documentTypes || []).includes("그 외") && <input value={form.documentOther || ""} onChange={(e) => setForm({ ...form, documentOther: e.target.value })} placeholder="필요한 서류를 입력하세요" style={{ marginTop: "8px" }} />}
               </Field>
               <Field label="마감일"><input type="date" value={form.deadline} onChange={(e) => setForm({ ...form, deadline: e.target.value })} /></Field>
               <Field label="지원 규모"><textarea value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} /></Field>
@@ -4066,7 +4235,7 @@
             </div>
             <div className="modal-actions">
               {onDelete && <button className="text-btn danger" onClick={() => onDelete(form.id)}>삭제</button>}
-              <div className="action-right"><button className="text-btn" onClick={onClose}>취소</button><button className="text-btn primary" disabled={!form.title.trim()} onClick={() => onSave(form)}>저장</button></div>
+              <div className="action-right"><button className="text-btn" onClick={onClose}>취소</button><button className="text-btn primary" disabled={!form.title.trim()} onClick={() => onSave(preparedForm())}>저장</button></div>
             </div>
           </div>
         </div>
