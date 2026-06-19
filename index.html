@@ -22,8 +22,8 @@
       font-family: Pretendard, Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
     .left-panel {
-      width: 300px;
-      min-width: 300px;
+      width: 288px;
+      min-width: 288px;
       height: 100vh;
       display: flex;
       flex-direction: column;
@@ -98,10 +98,10 @@
       border: 1px solid #dfe7ea;
       background: #ffffff;
       display: flex;
-      gap: 8px;
+      gap: 5px;
       align-items: flex-start;
       justify-content: space-between;
-      padding: 9px 10px 9px 12px;
+      padding: 9px 8px 9px 12px;
       height: 64px;
       border-radius: 8px;
       cursor: grab;
@@ -127,7 +127,7 @@
       line-height: 1;
     }
     .grant-side {
-      flex: 0 0 52px;
+      flex: 0 0 46px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -145,7 +145,7 @@
     }
     .grant-name {
       flex: 0 1 auto;
-      max-width: calc(100% - 60px);
+      max-width: calc(100% - 50px);
       font-size: 14px;
       line-height: 1.3;
       font-weight: 500;
@@ -490,7 +490,7 @@
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      gap: 3px;
+      gap: 6px;
       width: calc(100% - 14px);
       padding: 7px 8px;
       border-radius: 8px;
@@ -503,6 +503,11 @@
       border-color: #b7c8ff;
       box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
     }
+    .assigned-main {
+      min-width: 0;
+      flex: 1 1 auto;
+      max-width: calc(100% - 20px);
+    }
     .assigned-title {
       font-size: 13.5px;
       font-weight: 500;
@@ -512,11 +517,11 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 172px;
+      max-width: 100%;
     }
     .assigned-title.inline {
       margin-top: 0;
-      max-width: 124px;
+      max-width: 100%;
     }
     .assigned-tab .dday {
       font-size: 12.5px;
@@ -593,7 +598,7 @@
       flex: 1;
     }
     .remove {
-      flex: 0 0 14px;
+      flex: 0 0 16px;
       border: 0;
       background: transparent;
       cursor: pointer;
@@ -696,6 +701,22 @@
       padding: 24px;
     }
     .modal h2 { margin: 0 0 14px; font-size: 18px; }
+    .modal-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .modal-title-row h2 {
+      margin: 0;
+    }
+    .modal-title-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
     .form-grid { display: grid; gap: 10px; }
     .grant-edit-modal .form-grid { gap: 12px; }
     .field label {
@@ -935,14 +956,16 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      background: #f8fafc;
-      border-color: #cfd8dc;
-      padding-right: 7px;
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      padding: 1px 0;
+      margin-bottom: 3px;
       min-width: 0;
     }
     .meeting-time {
       flex: 0 0 auto;
-      color: #475569;
+      color: #2563eb;
       font-size: 12px;
       font-weight: 500;
       white-space: nowrap;
@@ -955,6 +978,16 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+    .schedule-grant.slim-schedule {
+      padding: 5px 48px 5px 7px;
+    }
+    .slim-schedule .schedule-grant-line {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      min-width: 0;
+      white-space: nowrap;
     }
     .schedule-deadline {
       display: flex;
@@ -1016,6 +1049,11 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    .slim-schedule .schedule-company {
+      flex: 0 1 auto;
+      max-width: 42%;
+      margin-bottom: 0;
+    }
     .schedule-title {
       color: #111827;
       font-size: 13px;
@@ -1023,6 +1061,11 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+    .slim-schedule .schedule-title {
+      flex: 1 1 auto;
+      min-width: 0;
+      font-size: 12.5px;
     }
     .schedule-meta {
       position: absolute;
@@ -1143,6 +1186,21 @@
       align-items: center;
       gap: 5px;
       padding-right: 6px;
+    }
+    .full-calendar-day .schedule-grant-line {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      min-width: 0;
+      white-space: nowrap;
+    }
+    .full-calendar-day .schedule-grant-line .schedule-title {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      -webkit-line-clamp: unset;
+      -webkit-box-orient: initial;
     }
     .full-calendar-day .meeting-title {
       font-size: 11px;
@@ -2175,7 +2233,9 @@
           budget: grant.budget || "",
           region: grant.region || "",
           condition: grant.condition || "",
-          link: grant.link || ""
+          link: grant.link || "",
+          createdAt: grant.createdAt || "",
+          ribbonDismissedAt: grant.ribbonDismissedAt || ""
         }));
     }
     function normalizeCompanyList(items) {
@@ -2285,6 +2345,25 @@
       if (diff < 0) return "dday past";
       if (diff <= 4) return "dday urgent";
       return "dday normal";
+    }
+    function isNewGrantRibbon(grant) {
+      if (!grant?.createdAt || grant.ribbonDismissedAt) return false;
+      const created = new Date(grant.createdAt);
+      if (!Number.isFinite(created.getTime())) return false;
+      const start = parseDateKey(dateKey(created));
+      const end = parseDateKey(todayKey());
+      if (end < start) return false;
+      let businessDays = 0;
+      const cursor = new Date(start);
+      while (cursor <= end) {
+        const day = cursor.getDay();
+        if (day !== 0 && day !== 6) businessDays += 1;
+        cursor.setDate(cursor.getDate() + 1);
+      }
+      return businessDays <= 2;
+    }
+    function grantListDisplayTitle(grant) {
+      return `${isNewGrantRibbon(grant) ? "🎀 " : ""}${grant?.title || ""}`;
     }
     function companyAgeLabel(foundedDate, fallbackAge) {
       if (!foundedDate) return fallbackAge || "예비창업자";
@@ -3237,10 +3316,7 @@
           return true;
         }).sort((a, b) => {
           if (!!a.pinned !== !!b.pinned) return Number(!!b.pinned) - Number(!!a.pinned);
-          if (activeCompanyTab !== "all") return 0;
-          const aReady = (a.assignedGrantIds || []).some((grantId) => assignmentStatus(a, grantId) === "ready");
-          const bReady = (b.assignedGrantIds || []).some((grantId) => assignmentStatus(b, grantId) === "ready");
-          return Number(bReady) - Number(aReady);
+          return 0;
         }),
         [companies, activeCompanyTab]
       );
@@ -3418,6 +3494,7 @@
             assignmentSources: { ...(company.assignmentSources || {}), [grantId]: "manager" }
           };
         }));
+        setGrants((current) => current.map((grant) => grant.id === grantId ? { ...grant, ribbonDismissedAt: grant.ribbonDismissedAt || new Date().toISOString() } : grant));
         setSelectedGrantId("");
         addLog("지원사업 배정", `${companyName} / ${grantTitle}`, { type: "assignGrant", companyId, grantId });
       }
@@ -3541,7 +3618,7 @@
       }
       function saveGrant(form) {
         const isNew = !form.id;
-        const next = { ...form, id: form.id || uid("g") };
+        const next = { ...form, id: form.id || uid("g"), createdAt: isNew ? new Date().toISOString() : form.createdAt || "" };
         setGrants((current) => isNew ? [...current, next] : current.map((grant) => grant.id === next.id ? next : grant));
         setEditingGrant(null);
         if (isNew) {
@@ -3915,9 +3992,9 @@
                   {group.items.map((grant) => (
                     <div key={grant.id} role="button" tabIndex={0} ref={(node) => { grantRefs.current[grant.id] = node; }} className={`grant-tab ${selectedGrantId === grant.id ? "selected" : ""} ${highlightGrantId === grant.id ? "highlight" : ""}`} title={`지역: ${grant.region || "-"}\n조건: ${grant.condition || "-"}\n규모: ${grant.budget || "-"}\n링크: ${grant.link || "-"}`} onPointerDown={(event) => startPointerGrant(event, grant)} onDoubleClick={() => setEditingGrant(grant)}>
                       {grant.link ? (
-                        <a className="grant-name grant-title-link" href={safeUrl(grant.link)} target="_blank" rel="noreferrer" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => event.stopPropagation()}>{shortListTitle(grant.title)}</a>
+                        <a className="grant-name grant-title-link" href={safeUrl(grant.link)} target="_blank" rel="noreferrer" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => event.stopPropagation()}>{shortListTitle(grantListDisplayTitle(grant))}</a>
                       ) : (
-                        <span className="grant-name">{shortListTitle(grant.title)}</span>
+                        <span className="grant-name">{shortListTitle(grantListDisplayTitle(grant))}</span>
                       )}
                       <span className="grant-side">
                         <span className={ddayClass(grant.deadline)}>{ddayLabel(grant.deadline)}</span>
@@ -4015,7 +4092,7 @@
                       return (
                         <React.Fragment key={grantId}>
                           <div className={`assigned-tab ${!isReadyStatus ? "compact-done" : ""}`} data-assignment-index={index} onPointerDown={(e) => startAssignedScheduleDrag(e, company.id, grantId, grant.title)} onClick={(e) => e.stopPropagation()}>
-                            <div>
+                            <div className="assigned-main">
                               <div className="assignment-topline">
                                 <div className="status-toggle" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
                                   <button className={`status-btn ${currentStatus} active`} onClick={(e) => { e.stopPropagation(); updateAssignmentStatus(company.id, grantId, nextStatus(currentStatus)); }}>{statusLabel(currentStatus)}</button>
@@ -4073,10 +4150,20 @@
                             );
                           }
                           if (!grant) return null;
+                          const isSlimSchedule = String(company.name || "").includes("라해");
                           return (
-                            <div className="schedule-item" key={item.id} title="드래그하면 이동, 클릭하면 삭제" onPointerDown={(e) => startScheduleMove(e, item)} onClick={(e) => { e.stopPropagation(); if (scheduleClickBlockRef.current === item.id) return; removeSchedule(item.id); }}>
-                              <div className="schedule-company">{company.name}</div>
-                              <div className="schedule-title">{compactAssignedTitle(grant.title)}</div>
+                            <div className={`schedule-item ${isSlimSchedule ? "schedule-grant slim-schedule" : ""}`} key={item.id} title="드래그하면 이동, 클릭하면 삭제" onPointerDown={(e) => startScheduleMove(e, item)} onClick={(e) => { e.stopPropagation(); if (scheduleClickBlockRef.current === item.id) return; removeSchedule(item.id); }}>
+                              {isSlimSchedule ? (
+                                <div className="schedule-grant-line">
+                                  <span className="schedule-company">{company.name}</span>
+                                  <span className="schedule-title">{compactAssignedTitle(grant.title)}</span>
+                                </div>
+                              ) : (
+                                <React.Fragment>
+                                  <div className="schedule-company">{company.name}</div>
+                                  <div className="schedule-title">{compactAssignedTitle(grant.title)}</div>
+                                </React.Fragment>
+                              )}
                               <div className={`${ddayClass(grant.deadline)} schedule-meta`}>{ddayLabel(grant.deadline)}</div>
                             </div>
                           );
@@ -4138,10 +4225,20 @@
                               );
                             }
                             if (!grant) return null;
+                            const isSlimSchedule = String(company.name || "").includes("라해");
                             return (
-                              <div className="schedule-item" key={item.id} title="드래그하면 일정 이동" onPointerDown={(e) => startScheduleMove(e, item)} onClick={(e) => e.stopPropagation()}>
-                                <div className="schedule-company">{company.name}</div>
-                                <div className="schedule-title">{grant.title}</div>
+                              <div className={`schedule-item ${isSlimSchedule ? "schedule-grant slim-schedule" : ""}`} key={item.id} title="드래그하면 일정 이동" onPointerDown={(e) => startScheduleMove(e, item)} onClick={(e) => e.stopPropagation()}>
+                                {isSlimSchedule ? (
+                                  <div className="schedule-grant-line">
+                                    <span className="schedule-company">{company.name}</span>
+                                    <span className="schedule-title">{grant.title}</span>
+                                  </div>
+                                ) : (
+                                  <React.Fragment>
+                                    <div className="schedule-company">{company.name}</div>
+                                    <div className="schedule-title">{grant.title}</div>
+                                  </React.Fragment>
+                                )}
                               </div>
                             );
                           })}
@@ -4212,7 +4309,13 @@
       return (
         <div className="modal-backdrop" onPointerDown={(event) => { if (event.target === event.currentTarget) autoSaveAndClose(); }}>
           <div className="modal grant-edit-modal" onPointerDown={(event) => event.stopPropagation()}>
-            <h2>{form.id ? "지원사업 정보" : "지원사업 추가"}</h2>
+            <div className="modal-title-row">
+              <h2>{form.id ? "지원사업 정보" : "지원사업 추가"}</h2>
+              <div className="modal-title-actions">
+                {onDelete && <button className="text-btn danger" onClick={() => onDelete(form.id)}>삭제</button>}
+                <button className="text-btn primary" disabled={!form.title.trim()} onClick={() => onSave(preparedForm())}>저장</button>
+              </div>
+            </div>
             <div className="form-grid">
               <Field label="사업명"><input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></Field>
               <Field label="지원 구분"><select value={form.category || ""} onChange={(e) => setForm({ ...form, category: e.target.value })}><option value="">자동 분류</option>{grantCategories.map((category) => <option key={category} value={category}>{category}</option>)}</select></Field>
@@ -4234,8 +4337,7 @@
               <Field label="공고 링크"><input value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} /></Field>
             </div>
             <div className="modal-actions">
-              {onDelete && <button className="text-btn danger" onClick={() => onDelete(form.id)}>삭제</button>}
-              <div className="action-right"><button className="text-btn" onClick={onClose}>취소</button><button className="text-btn primary" disabled={!form.title.trim()} onClick={() => onSave(preparedForm())}>저장</button></div>
+              <div className="action-right"><button className="text-btn" onClick={onClose}>취소</button></div>
             </div>
           </div>
         </div>
