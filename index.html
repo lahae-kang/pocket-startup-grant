@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -676,6 +676,19 @@
       font-weight: 600;
       z-index: 60;
     }
+    .save-status {
+      height: 20px;
+      padding: 0 2px;
+      display: inline-flex;
+      align-items: center;
+      color: #7b8790;
+      font-size: 11px;
+      font-weight: 400;
+      white-space: nowrap;
+    }
+    .save-status.saving { color: #2563eb; }
+    .save-status.saved { color: #047857; }
+    .save-status.error { color: #b91c1c; }
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -979,6 +992,43 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    .meeting-kind {
+      flex: 0 0 auto;
+      color: #59676f;
+      font-size: 11px;
+      font-weight: 400;
+      white-space: nowrap;
+    }
+    .schedule-item.schedule-meeting.schedule-ir {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 6px;
+      width: auto;
+      max-width: none;
+      box-sizing: border-box;
+      background: #f4f7fa;
+      border: 1px solid #d4dde4;
+      border-radius: 7px;
+      box-shadow: none;
+      padding: 6px 52px 6px 7px;
+      margin: 0 0 6px;
+      color: #172026;
+      line-height: 1.35;
+      position: relative;
+    }
+    .schedule-item.schedule-meeting.schedule-ir:hover {
+      border-color: #d4dde4;
+      box-shadow: none;
+    }
+    .schedule-item.schedule-meeting.schedule-ir .meeting-kind {
+      color: #172026;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .schedule-item.schedule-meeting.schedule-ir .meeting-title {
+      font-size: 12.5px;
+    }
     .schedule-grant.slim-schedule {
       padding: 5px 48px 5px 7px;
     }
@@ -1076,7 +1126,28 @@
       font-weight: 500;
       white-space: nowrap;
     }
-    .calendar-icon-btn {
+    .schedule-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .schedule-copy-tab {
+      height: 24px;
+      border: 1px solid #cfd8dc;
+      background: #ffffff;
+      color: #39474f;
+      border-radius: 7px;
+      padding: 0 8px;
+      font-size: 11px;
+      font-weight: 400;
+      font-family: inherit;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .schedule-copy-tab:hover {
+      border-color: #9fb7ff;
+      color: #1d4ed8;
+    }    .calendar-icon-btn {
       width: 34px;
       height: 34px;
       border-radius: 8px;
@@ -2258,6 +2329,36 @@
           assignmentSources: company.assignmentSources && typeof company.assignmentSources === "object" ? company.assignmentSources : {}
         }));
     }
+    function keepCompanyOrder(referenceCompanies, nextCompanies) {
+      const order = new Map((referenceCompanies || []).map((company, index) => [String(company.id), index]));
+      return [...(nextCompanies || [])].sort((a, b) => {
+        const aIndex = order.has(String(a.id)) ? order.get(String(a.id)) : Number.MAX_SAFE_INTEGER;
+        const bIndex = order.has(String(b.id)) ? order.get(String(b.id)) : Number.MAX_SAFE_INTEGER;
+        if (aIndex !== bIndex) return aIndex - bIndex;
+        return 0;
+      });
+    }
+    function reconcileCompanyOrder(order, companies) {
+      const companyIds = (companies || []).map((company) => String(company.id)).filter(Boolean);
+      if (!companyIds.length) return [];
+      if (!Array.isArray(order) || !order.length) return companyIds;
+      const companyIdSet = new Set(companyIds);
+      const kept = order.map(String).filter((id) => companyIdSet.has(id));
+      const keptSet = new Set(kept);
+      const missing = companyIds.filter((id) => !keptSet.has(id));
+      return [...missing, ...kept];
+    }
+    function orderCompaniesByIds(companies, order) {
+      const companyMap = new Map((companies || []).map((company) => [String(company.id), company]));
+      const orderedIds = reconcileCompanyOrder(order, companies);
+      const used = new Set();
+      const ordered = orderedIds.map((id) => {
+        used.add(id);
+        return companyMap.get(id);
+      }).filter(Boolean);
+      const rest = (companies || []).filter((company) => !used.has(String(company.id)));
+      return [...ordered, ...rest];
+    }
     function plainObject(value) {
       return value && typeof value === "object" && !Array.isArray(value) ? value : {};
     }
@@ -2542,7 +2643,7 @@
       async get(key) { return window.__artifactMemoryStore?.[key] || null; },
       async set(key, value) { window.__artifactMemoryStore = window.__artifactMemoryStore || {}; window.__artifactMemoryStore[key] = value; }
     };
-    function withTimeout(promise, ms = 3000) {
+    function withTimeout(promise, ms = 15000) {
       return Promise.race([
         promise,
         new Promise((resolve) => window.setTimeout(() => resolve(null), ms))
@@ -2555,8 +2656,11 @@
             .from("app_state")
             .select("data")
             .eq("id", STORAGE_KEY)
-            .maybeSingle());
-          if (!result) return null;
+            .maybeSingle(), 15000);
+          if (!result) {
+            console.warn("Supabase read timed out");
+            return null;
+          }
           const { data, error } = result;
           if (error) throw error;
           return data?.data || null;
@@ -2571,8 +2675,21 @@
         return typeof value === "string" ? JSON.parse(value) : value;
       } catch { return null; }
     }
+    function isSeedLikePayload(data) {
+      if (!data?.grants || !data?.companies) return false;
+      const seedGrantIds = new Set(seedGrants.map((item) => item.id));
+      const seedCompanyIds = new Set(seedCompanies.map((item) => item.id));
+      const grantsAreSeed = data.grants.length === seedGrants.length && data.grants.every((item) => seedGrantIds.has(item.id));
+      const companiesAreSeed = data.companies.length === seedCompanies.length && data.companies.every((item) => seedCompanyIds.has(item.id));
+      const hasWorkData = (data.schedules || []).length > 0 || (data.logs || []).length > 0;
+      return grantsAreSeed && companiesAreSeed && !hasWorkData;
+    }
     async function storageWrite(data) {
       let payload = data;
+      if (isSeedLikePayload(payload)) {
+        console.warn("Refused to write seed-like payload before remote data is confirmed");
+        return { ok: false, remote: false, blocked: true, error: new Error("seed-like payload blocked") };
+      }
       if (data && !Object.prototype.hasOwnProperty.call(data, "customerProfiles")) {
         const saved = await storageRead();
         if (saved?.customerProfiles || saved?.customerSchedules) payload = { ...data, customerProfiles: saved?.customerProfiles || {}, customerSchedules: saved?.customerSchedules || {} };
@@ -2587,13 +2704,22 @@
               updated_at: new Date().toISOString()
             });
           if (error) throw error;
-          return;
+          return { ok: true, remote: true };
         } catch (error) {
           console.warn("Supabase write failed", error);
+          const api = window.storage || memoryStorage;
+          try { await api.set(STORAGE_KEY, JSON.stringify(payload)); } catch {}
+          return { ok: false, remote: false, fallback: true, error };
         }
       }
       const api = window.storage || memoryStorage;
-      try { await api.set(STORAGE_KEY, JSON.stringify(payload)); } catch {}
+      try {
+        await api.set(STORAGE_KEY, JSON.stringify(payload));
+        return { ok: true, remote: false, fallback: true };
+      } catch (error) {
+        console.warn("Local write failed", error);
+        return { ok: false, remote: false, fallback: false, error };
+      }
     }
     function requestedCompanyId() {
       const params = new URLSearchParams(window.location.search || "");
@@ -3245,6 +3371,7 @@
       const [companies, setCompanies] = useState(seedCompanies);
       const [query, setQuery] = useState("");
       const [toast, setToast] = useState("");
+      const [saveStatus, setSaveStatus] = useState({ state: "idle", text: "저장 대기" });
       const [highlightGrantId, setHighlightGrantId] = useState("");
       const [selectedGrantId, setSelectedGrantId] = useState("");
       const [editingGrant, setEditingGrant] = useState(null);
@@ -3252,32 +3379,90 @@
       const [editingCompany, setEditingCompany] = useState(null);
       const [drag, setDrag] = useState(null);
       const [companyDrag, setCompanyDrag] = useState(null);
+      const [meetingForm, setMeetingForm] = useState(null);
       const [activeCompanyTab, setActiveCompanyTab] = useState("all");
       const [showPastGrants, setShowPastGrants] = useState(false);
       const [schedules, setSchedules] = useState([]);
       const [logs, setLogs] = useState([]);
+      const [companyOrder, setCompanyOrder] = useState(() => seedCompanies.map((company) => company.id));
       const [schedulePick, setSchedulePick] = useState(null);
       const [calendarHeight, setCalendarHeight] = useState(220);
       const [showFullCalendar, setShowFullCalendar] = useState(false);
       const [fullCalendarBase, setFullCalendarBase] = useState(todayKey());
       const [loaded, setLoaded] = useState(false);
+      const [storageReady, setStorageReady] = useState(false);
       const grantRefs = useRef({});
       const assignmentListRefs = useRef({});
+      const companyRowRef = useRef(null);
       const companyClickTimer = useRef(null);
       const scheduleClickBlockRef = useRef("");
+      const saveRequestRef = useRef(0);
+      const companyOrderKey = companyOrder.join("|");
+      function scrollCompanyBoardStart() {
+        const node = companyRowRef.current;
+        if (!node) return;
+        node.scrollLeft = 0;
+        node.scrollTop = 0;
+        window.requestAnimationFrame?.(() => {
+          node.scrollLeft = 0;
+          node.scrollTop = 0;
+        });
+      }
+      function queueCompanyBoardStart(delay = 0) {
+        window.setTimeout(scrollCompanyBoardStart, delay);
+        window.setTimeout(scrollCompanyBoardStart, delay + 120);
+      }
       useEffect(() => {
+        if ("scrollRestoration" in window.history) window.history.scrollRestoration = "manual";
         storageRead().then((saved) => {
           if (saved?.grants && saved?.companies) {
+            const normalizedCompanies = normalizeCompanyList(saved.companies);
             setGrants(saved.grants);
-            setCompanies(saved.companies);
+            setCompanies(normalizedCompanies);
+            setCompanyOrder(reconcileCompanyOrder(saved.companyOrder, normalizedCompanies));
             setSchedules(saved.schedules || []);
             setLogs(saved.logs || []);
             if (saved.calendarHeight) setCalendarHeight(Math.max(220, saved.calendarHeight));
+            setStorageReady(true);
+          } else {
+            setStorageReady(false);
+            setSaveStatus({ state: "error", text: "서버 데이터 확인 필요" });
+            setToast("서버 데이터를 불러오지 못해 자동저장을 막았습니다.");
           }
           setLoaded(true);
         });
       }, []);
-      useEffect(() => { if (loaded) storageWrite({ grants, companies, schedules, logs, calendarHeight }); }, [grants, companies, schedules, logs, calendarHeight, loaded]);
+      useEffect(() => {
+        if (!loaded || activeCompanyTab === "log") return;
+        const timer = window.setTimeout(scrollCompanyBoardStart, 80);
+        return () => window.clearTimeout(timer);
+      }, [loaded, activeCompanyTab, companyOrderKey, companies.length, grants.length]);
+      useEffect(() => {
+        if (!loaded) return;
+        setCompanyOrder((current) => {
+          const next = reconcileCompanyOrder(current, companies);
+          return next.join("|") === current.join("|") ? current : next;
+        });
+      }, [companies, loaded]);
+      useEffect(() => {
+        if (!loaded || !storageReady) return;
+        const requestId = saveRequestRef.current + 1;
+        saveRequestRef.current = requestId;
+        setSaveStatus({ state: "saving", text: "저장 중" });
+        const timer = window.setTimeout(async () => {
+          const result = await storageWrite({ grants, companies, schedules, logs, calendarHeight, companyOrder });
+          if (saveRequestRef.current !== requestId) return;
+          if (result?.remote) {
+            setSaveStatus({ state: "saved", text: "서버 저장 완료" });
+          } else if (result?.ok) {
+            setSaveStatus({ state: "saved", text: "임시 저장 완료" });
+          } else {
+            setSaveStatus({ state: "error", text: "서버 저장 실패" });
+            setToast("서버 저장 실패. 새로고침하면 최근 수정 내용이 사라질 수 있습니다.");
+          }
+        }, 500);
+        return () => window.clearTimeout(timer);
+      }, [grants, companies, schedules, logs, calendarHeight, companyOrder, loaded, storageReady]);
       useEffect(() => {
         if (!toast) return;
         const timer = window.setTimeout(() => setToast(""), 1800);
@@ -3308,17 +3493,15 @@
         category,
         items: visibleGrants.filter((grant) => grantCategory(grant) === category)
       })), [visibleGrants]);
+      const orderedCompanies = useMemo(() => orderCompaniesByIds(companies, companyOrder), [companies, companyOrder]);
       const visibleCompanies = useMemo(
-        () => companies.filter((company) => {
+        () => orderedCompanies.filter((company) => {
           if (activeCompanyTab === "log") return false;
           if (activeCompanyTab === "ended") return !!company.contractEnded;
           if (company.contractEnded) return false;
           return true;
-        }).sort((a, b) => {
-          if (!!a.pinned !== !!b.pinned) return Number(!!b.pinned) - Number(!!a.pinned);
-          return 0;
         }),
-        [companies, activeCompanyTab]
+        [orderedCompanies, activeCompanyTab]
       );
       const displayCompanies = useMemo(() => {
         return visibleCompanies.map((company) => ({ type: "company", company }));
@@ -3360,7 +3543,7 @@
           const grant = grants.find((target) => target.title === parts[1]);
           if (!company || !grant) return false;
           if (item.action === "지원사업 배정") {
-            setCompanies((current) => current.map((target) => {
+            setCompanies((current) => keepCompanyOrder(current, current.map((target) => {
               if (target.id !== company.id) return target;
               const nextStatuses = { ...(target.assignmentStatuses || {}) };
               const nextResults = { ...(target.assignmentResults || {}) };
@@ -3369,17 +3552,17 @@
               delete nextResults[grant.id];
               delete nextSources[grant.id];
               return { ...target, assignedGrantIds: (target.assignedGrantIds || []).filter((id) => id !== grant.id), assignmentStatuses: nextStatuses, assignmentResults: nextResults, assignmentSources: nextSources };
-            }));
+            })));
             return true;
           }
-          setCompanies((current) => current.map((target) => {
+          setCompanies((current) => keepCompanyOrder(current, current.map((target) => {
             if (target.id !== company.id || (target.assignedGrantIds || []).includes(grant.id)) return target;
             return {
               ...target,
               assignedGrantIds: [...(target.assignedGrantIds || []), grant.id],
               assignmentStatuses: { ...(target.assignmentStatuses || {}), [grant.id]: "ready" }
             };
-          }));
+          })));
           return true;
         }
         if (item.action === "스케줄 등록" || item.action === "스케줄 삭제") {
@@ -3415,7 +3598,7 @@
         }
         const undo = item.undo;
         if (undo.type === "assignGrant") {
-          setCompanies((current) => current.map((company) => {
+          setCompanies((current) => keepCompanyOrder(current, current.map((company) => {
             if (company.id !== undo.companyId) return company;
             const nextStatuses = { ...(company.assignmentStatuses || {}) };
             const nextResults = { ...(company.assignmentResults || {}) };
@@ -3424,9 +3607,9 @@
             delete nextResults[undo.grantId];
             delete nextSources[undo.grantId];
             return { ...company, assignedGrantIds: (company.assignedGrantIds || []).filter((id) => id !== undo.grantId), assignmentStatuses: nextStatuses, assignmentResults: nextResults, assignmentSources: nextSources };
-          }));
+          })));
         } else if (undo.type === "removeAssignment") {
-          setCompanies((current) => current.map((company) => {
+          setCompanies((current) => keepCompanyOrder(current, current.map((company) => {
             if (company.id !== undo.companyId || (company.assignedGrantIds || []).includes(undo.grantId)) return company;
             const ids = [...(company.assignedGrantIds || [])];
             ids.splice(Math.max(0, Math.min(undo.index ?? ids.length, ids.length)), 0, undo.grantId);
@@ -3437,7 +3620,7 @@
             if (undo.result) nextResults[undo.grantId] = undo.result;
             if (undo.source) nextSources[undo.grantId] = undo.source;
             return { ...company, assignedGrantIds: ids, assignmentStatuses: nextStatuses, assignmentResults: nextResults, assignmentSources: nextSources };
-          }));
+          })));
         } else if (undo.type === "addSchedule") {
           setSchedules((current) => current.filter((schedule) => schedule.id !== undo.schedule.id));
         } else if (undo.type === "removeSchedule") {
@@ -3445,13 +3628,13 @@
         } else if (undo.type === "moveSchedule") {
           setSchedules((current) => current.map((schedule) => schedule.id === undo.scheduleId ? { ...schedule, date: undo.previousDate } : schedule));
         } else if (undo.type === "saveCompany") {
-          setCompanies((current) => undo.isNew ? current.filter((company) => company.id !== undo.company.id) : current.map((company) => company.id === undo.company.id ? undo.company : company));
+          setCompanies((current) => undo.isNew ? current.filter((company) => company.id !== undo.company.id) : keepCompanyOrder(current, current.map((company) => company.id === undo.company.id ? undo.company : company)));
         } else if (undo.type === "deleteCompany") {
           setCompanies((current) => current.some((company) => company.id === undo.company.id) ? current : [...current, undo.company]);
         } else if (undo.type === "round") {
-          setCompanies((current) => current.map((company) => company.id === undo.companyId ? { ...company, round: undo.previousRound } : company));
+          setCompanies((current) => keepCompanyOrder(current, current.map((company) => company.id === undo.companyId ? { ...company, round: undo.previousRound } : company)));
         } else if (undo.type === "status") {
-          setCompanies((current) => current.map((company) => {
+          setCompanies((current) => keepCompanyOrder(current, current.map((company) => {
             if (company.id !== undo.companyId) return company;
             const nextStatuses = { ...(company.assignmentStatuses || {}) };
             const nextResults = { ...(company.assignmentResults || {}) };
@@ -3460,13 +3643,15 @@
             if (undo.previousResult) nextResults[undo.grantId] = undo.previousResult;
             else delete nextResults[undo.grantId];
             return { ...company, assignmentStatuses: nextStatuses, assignmentResults: nextResults };
-          }));
+          })));
         } else if (undo.type === "moveCompany") {
           setCompanies((current) => {
             const map = Object.fromEntries(current.map((company) => [company.id, company]));
             const ordered = undo.order.map((id) => map[id]).filter(Boolean);
             const rest = current.filter((company) => !undo.order.includes(company.id));
-            return [...ordered, ...rest];
+            const nextCompanies = [...ordered, ...rest];
+            setCompanyOrder(nextCompanies.map((company) => company.id));
+            return nextCompanies;
           });
         } else {
           notify("취소할 수 없는 기록입니다");
@@ -3484,18 +3669,19 @@
           notify("이미 배정된 지원사업입니다");
           return;
         }
-        setCompanies((current) => current.map((company) => {
+        setCompanies((current) => keepCompanyOrder(current, current.map((company) => {
           if (company.id !== companyId) return company;
           notify("배정됨");
           return {
             ...company,
-            assignedGrantIds: [...company.assignedGrantIds, grantId],
+            assignedGrantIds: [...(company.assignedGrantIds || []), grantId],
             assignmentStatuses: { ...(company.assignmentStatuses || {}), [grantId]: "ready" },
             assignmentSources: { ...(company.assignmentSources || {}), [grantId]: "manager" }
           };
-        }));
+        })));
         setGrants((current) => current.map((grant) => grant.id === grantId ? { ...grant, ribbonDismissedAt: grant.ribbonDismissedAt || new Date().toISOString() } : grant));
         setSelectedGrantId("");
+        queueCompanyBoardStart(40);
         addLog("지원사업 배정", `${companyName} / ${grantTitle}`, { type: "assignGrant", companyId, grantId });
       }
       function removeAssignment(companyId, grantId) {
@@ -3506,7 +3692,7 @@
         const status = targetCompany?.assignmentStatuses?.[grantId] || "";
         const result = targetCompany?.assignmentResults?.[grantId] || "";
         const source = targetCompany?.assignmentSources?.[grantId] || "";
-        setCompanies((current) => current.map((company) => {
+        setCompanies((current) => keepCompanyOrder(current, current.map((company) => {
           if (company.id !== companyId) return company;
           const nextStatuses = { ...(company.assignmentStatuses || {}) };
           const nextResults = { ...(company.assignmentResults || {}) };
@@ -3514,8 +3700,8 @@
           delete nextStatuses[grantId];
           delete nextResults[grantId];
           delete nextSources[grantId];
-          return { ...company, assignedGrantIds: company.assignedGrantIds.filter((id) => id !== grantId), assignmentStatuses: nextStatuses, assignmentResults: nextResults, assignmentSources: nextSources };
-        }));
+          return { ...company, assignedGrantIds: (company.assignedGrantIds || []).filter((id) => id !== grantId), assignmentStatuses: nextStatuses, assignmentResults: nextResults, assignmentSources: nextSources };
+        })));
         addLog("지원사업 제거", `${companyName} / ${grantTitle}`, { type: "removeAssignment", companyId, grantId, index, status, result, source });
       }
       function addSchedule(date) {
@@ -3535,23 +3721,100 @@
       }
       function addMeetingSchedule(date, companyId) {
         const companyName = companies.find((company) => company.id === companyId)?.name || "기업";
-        const time = window.prompt?.(`${companyName} 미팅 시간을 입력하세요`, "10:00");
-        if (time === null || time === undefined) return false;
-        const trimmedTime = normalizeMeetingTime(time);
-        if (!trimmedTime) {
-          notify("시간을 입력해야 합니다");
-          return false;
-        }
-        const exists = schedules.some((item) => item.type === "meeting" && item.date === date && item.companyId === companyId && item.time === trimmedTime);
-        if (exists) {
-          notify("이미 등록된 미팅입니다");
-          return false;
-        }
-        const schedule = { id: uid("s"), type: "meeting", date, companyId, time: trimmedTime };
-        setSchedules((current) => [...current, schedule]);
-        notify("일정 등록됨");
-        addLog("미팅 등록", `${date} ${trimmedTime} / ${companyName}`, { type: "addSchedule", schedule });
+        setMeetingForm({ date, companyId, companyName, kind: "meeting", time: "10:00", title: "" });
         return true;
+      }
+      function saveMeetingSchedule() {
+        if (!meetingForm) return;
+        const kind = normalizeScheduleKind(meetingForm.kind);
+        const trimmedTime = kind === "meeting" ? normalizeMeetingTime(meetingForm.time) : "";
+        const workTitle = kind === "work" ? String(meetingForm.title || "").trim() : "";
+        if (!kind) {
+          notify("일정 종류를 선택하세요");
+          return;
+        }
+        if (kind === "meeting" && !trimmedTime) {
+          notify("시간을 입력해야 합니다");
+          return;
+        }
+        if (kind === "work" && !workTitle) {
+          notify("작업 내용을 입력하세요");
+          return;
+        }
+        const exists = schedules.some((item) => item.type === "meeting" && item.date === meetingForm.date && item.companyId === meetingForm.companyId && (item.kind || "meeting") === kind && (kind !== "meeting" || item.time === trimmedTime) && (kind !== "work" || String(item.title || "").trim() === workTitle));
+        if (exists) {
+          notify("이미 등록된 일정입니다");
+          return;
+        }
+        const schedule = { id: uid("s"), type: "meeting", kind, date: meetingForm.date, companyId: meetingForm.companyId, time: trimmedTime, title: workTitle };
+        const companyName = meetingForm.companyName || companies.find((company) => company.id === meetingForm.companyId)?.name || "기업";
+        setSchedules((current) => [...current, schedule]);
+        setMeetingForm(null);
+        notify("일정 등록됨");
+        addLog(`${scheduleKindLabel(kind)} 등록`, `${meetingForm.date}${trimmedTime ? ` ${trimmedTime}` : ""} / ${companyName}${workTitle ? ` / ${workTitle}` : ""}`, { type: "addSchedule", schedule });
+      }
+      function normalizeScheduleKind(value) {
+        const normalized = String(value || "").trim().toLowerCase();
+        if (["ir", "아이알", "2"].includes(normalized)) return "ir";
+        if (["작업", "work", "task", "3"].includes(normalized)) return "work";
+        if (["미팅", "meeting", "meet", "1"].includes(normalized)) return "meeting";
+        return "";
+      }
+      function scheduleKindLabel(kind) {
+        if (kind === "work") return "작업";
+        return kind === "ir" ? "IR" : "미팅";
+      }
+      function scheduleItemRank(item) {
+        const kind = normalizeScheduleKind(item.kind) || "meeting";
+        if (item.type === "meeting" && kind === "ir") return 0;
+        if (item.type === "meeting" && kind === "work") return 0;
+        if (item.type === "meeting") return 2;
+        return 1;
+      }
+      function sortScheduleItems(items) {
+        return items.slice().sort((a, b) => {
+          const rankDiff = scheduleItemRank(a) - scheduleItemRank(b);
+          if (rankDiff !== 0) return rankDiff;
+          return String(a.time || "").localeCompare(String(b.time || ""));
+        });
+      }
+      function todayScheduleCopyText() {
+        return sortScheduleItems(schedules.filter((item) => item.date === todayKey())).map((item) => {
+          const company = companies.find((target) => target.id === item.companyId);
+          if (!company) return "";
+          if (item.type === "meeting") {
+            const meetingKind = normalizeScheduleKind(item.kind) || "meeting";
+            return `${company.name} / ${meetingKind === "work" ? (item.title || "작업") : scheduleKindLabel(meetingKind)} 4h`;
+          }
+          const grant = grantMap[item.grantId];
+          if (!grant) return "";
+          return `${company.name} / ${grant.title} 4h`;
+        }).filter(Boolean).join("\n");
+      }
+      async function copyTodaySchedules() {
+        const text = todayScheduleCopyText();
+        if (!text) {
+          notify("오늘 복사할 스케줄이 없습니다");
+          return;
+        }
+        try {
+          if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(text);
+          } else {
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            textarea.setAttribute("readonly", "");
+            textarea.style.position = "fixed";
+            textarea.style.left = "-9999px";
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textarea);
+          }
+          notify("오늘 스케줄 복사됨");
+        } catch (error) {
+          notify("복사에 실패했습니다");
+        }
       }
       function normalizeMeetingTime(value) {
         const raw = String(value || "").trim();
@@ -3590,7 +3853,7 @@
         const schedule = schedules.find((item) => item.id === id);
         if (schedule) {
           const companyName = companies.find((company) => company.id === schedule.companyId)?.name || "기업";
-          const scheduleTitle = schedule.type === "meeting" ? `${schedule.time || ""} ${companyName}`.trim() : grantMap[schedule.grantId]?.title || "지원사업";
+          const scheduleTitle = schedule.type === "meeting" ? `${schedule.time ? `${schedule.time} ` : ""}${scheduleKindLabel(schedule.kind || "meeting")} ${companyName}`.trim() : grantMap[schedule.grantId]?.title || "지원사업";
           addLog("스케줄 삭제", `${schedule.date} / ${companyName} / ${scheduleTitle}`, { type: "removeSchedule", schedule });
         }
         setSchedules((current) => current.filter((item) => item.id !== id));
@@ -3621,6 +3884,7 @@
         const next = { ...form, id: form.id || uid("g"), createdAt: isNew ? new Date().toISOString() : form.createdAt || "" };
         setGrants((current) => isNew ? [...current, next] : current.map((grant) => grant.id === next.id ? next : grant));
         setEditingGrant(null);
+        queueCompanyBoardStart(40);
         if (isNew) {
           setQuery("");
           setHighlightGrantId(next.id);
@@ -3634,15 +3898,16 @@
       }
       function deleteGrant(id) {
         setGrants((current) => current.filter((grant) => grant.id !== id));
-        setCompanies((current) => current.map((company) => {
+        queueCompanyBoardStart(40);
+        setCompanies((current) => keepCompanyOrder(current, current.map((company) => {
           const nextStatuses = { ...(company.assignmentStatuses || {}) };
           const nextResults = { ...(company.assignmentResults || {}) };
           const nextSources = { ...(company.assignmentSources || {}) };
           delete nextStatuses[id];
           delete nextResults[id];
           delete nextSources[id];
-          return { ...company, assignedGrantIds: company.assignedGrantIds.filter((grantId) => grantId !== id), assignmentStatuses: nextStatuses, assignmentResults: nextResults, assignmentSources: nextSources };
-        }));
+          return { ...company, assignedGrantIds: (company.assignedGrantIds || []).filter((grantId) => grantId !== id), assignmentStatuses: nextStatuses, assignmentResults: nextResults, assignmentSources: nextSources };
+        })));
         setEditingGrant(null);
       }
       function saveCompany(form) {
@@ -3653,15 +3918,19 @@
         const roundValue = form.round === "" || form.round === null || form.round === undefined ? 1 : Number(form.round);
         const next = { ...form, id: form.id || uid("c"), age: undefined, round: Number.isNaN(roundValue) ? 1 : roundValue, monthlyTarget: target, monthlyDone: Math.min(Number(form.monthlyDone || 0), target), assignedGrantIds, assignmentStatuses };
         const previousCompany = companies.find((company) => company.id === form.id);
-        setCompanies((current) => form.id ? current.map((company) => company.id === next.id ? next : company) : [...current, next]);
+        setCompanies((current) => form.id ? keepCompanyOrder(current, current.map((company) => company.id === next.id ? next : company)) : [next, ...current]);
+        setCompanyOrder((current) => form.id ? current : [next.id, ...current.filter((id) => id !== next.id)]);
         setEditingCompany(null);
+        if (!form.id) queueCompanyBoardStart(40);
         addLog(form.id ? "기업 정보 수정" : "기업 추가", next.name, { type: "saveCompany", isNew: !form.id, company: previousCompany || next });
       }
       function deleteCompany(id) {
         const deletedCompany = companies.find((company) => company.id === id);
         const companyName = deletedCompany?.name || "기업";
         setCompanies((current) => current.filter((company) => company.id !== id));
+        setCompanyOrder((current) => current.filter((companyId) => companyId !== id));
         setEditingCompany(null);
+        queueCompanyBoardStart(40);
         if (deletedCompany) addLog("기업 삭제", companyName, { type: "deleteCompany", company: deletedCompany });
       }
       function startPointerGrant(event, grant) {
@@ -3893,7 +4162,7 @@
           }
           const placement = companyInsertPlacement(event);
           if (movedAtDrop && placement?.companyId) {
-            const previousOrder = companies.map((company) => company.id);
+            const previousOrder = reconcileCompanyOrder(companyOrder, companies);
             setCompanies((currentCompanies) => {
               const currentMap = Object.fromEntries(currentCompanies.map((company) => [company.id, company]));
               const visibleIds = visibleCompanies.map((company) => company.id);
@@ -3906,7 +4175,10 @@
               const reorderedSet = new Set(reorderedVisibleIds);
               const reorderedCompanies = reorderedVisibleIds.map((id) => currentMap[id]).filter(Boolean);
               const hiddenCompanies = currentCompanies.filter((company) => !reorderedSet.has(company.id));
-              return [...reorderedCompanies, ...hiddenCompanies];
+              const nextCompanies = [...reorderedCompanies, ...hiddenCompanies];
+              setCompanyOrder(nextCompanies.map((company) => company.id));
+              queueCompanyBoardStart(40);
+              return nextCompanies;
             });
             const movedCompany = companies.find((company) => company.id === current.companyId);
             if (movedCompany) addLog("기업 위치 이동", movedCompany.name, { type: "moveCompany", order: previousOrder });
@@ -3927,9 +4199,9 @@
           window.removeEventListener("pointerup", up);
           window.removeEventListener("pointercancel", up);
         };
-      }, [companyDrag, selectedGrantId, companies]);
+      }, [companyDrag, selectedGrantId, companies, companyOrder, visibleCompanies]);
       function updateCompany(id, patch) {
-        setCompanies((current) => current.map((company) => company.id === id ? { ...company, ...patch } : company));
+        setCompanies((current) => keepCompanyOrder(current, current.map((company) => company.id === id ? { ...company, ...patch } : company)));
       }
       function openCompanyLater(company) {
         if (companyClickTimer.current) window.clearTimeout(companyClickTimer.current);
@@ -3966,13 +4238,15 @@
         const grantTitle = grantMap[grantId]?.title || "지원사업";
         const previousStatus = targetCompany?.assignmentStatuses?.[grantId] || "";
         const previousResult = targetCompany?.assignmentResults?.[grantId] || "";
-        setCompanies((current) => current.map((company) => {
+        const stableOrder = reconcileCompanyOrder(companyOrder, companies);
+        setCompanyOrder(stableOrder);
+        setCompanies((current) => orderCompaniesByIds(current.map((company) => {
           if (company.id !== companyId) return company;
           const nextResults = { ...(company.assignmentResults || {}) };
           if (status === "ready") delete nextResults[grantId];
           if (status === "passed") nextResults[grantId] = nextResults[grantId] || "final";
           return { ...company, assignmentStatuses: { ...(company.assignmentStatuses || {}), [grantId]: status }, assignmentResults: nextResults };
-        }));
+        }), stableOrder));
         addLog("진행상태 변경", `${companyName} / ${grantTitle} / ${statusLabel(status)}`, { type: "status", companyId, grantId, previousStatus, previousResult });
       }
       return (
@@ -4016,6 +4290,7 @@
                 </div>
               </div>
               <div className="board-actions">
+                <span className={`save-status ${saveStatus.state}`} title={saveStatus.state === "error" ? "서버 저장에 실패했습니다. Supabase 연결 또는 권한을 확인하세요." : "자동 저장 상태"}>{saveStatus.text}</span>
                 <div className="board-tabs">
                   {[
                     ["all", "전체"],
@@ -4043,7 +4318,7 @@
               </div>
             ) : (
             <React.Fragment>
-            <div className="company-row">
+            <div className="company-row" ref={companyRowRef}>
               {companyLines.map((line, lineIndex) => (
                 <div className="company-line" key={lineIndex}>
                   {line.map((item) => {
@@ -4054,7 +4329,6 @@
                     <div className="company-controls">
                       {company.contractEnded && <span className="ended-pill">종료</span>}
                       {company.crmUrl && <a className="crm-chip" href={safeUrl(company.crmUrl)} target="_blank" rel="noreferrer" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => event.stopPropagation()}>CRM</a>}
-                      <a className="crm-chip client-chip" href={customerPageUrl(company.id)} target="_blank" rel="noreferrer" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => event.stopPropagation()}>고객</a>
                     </div>
                     <div className="company-name-row">
                       <h3 className="company-name">{company.name}</h3>
@@ -4121,8 +4395,9 @@
             <div className="calendar-resizer" onPointerDown={startCalendarResize} title="일정표 높이 조절" />
             <section className="calendar-panel" style={{ flex: `0 0 ${calendarHeight}px` }}>
               <div className="calendar-head">
-                <div>
+                <div className="schedule-title-row">
                   <h2 className="title">스케줄</h2>
+                  <button className="schedule-copy-tab" onClick={copyTodaySchedules}>복사</button>
                 </div>
                 <div className="board-actions">
                   <button className="calendar-icon-btn" title="전체 달력" onClick={() => setShowFullCalendar(true)}>▦</button>
@@ -4131,7 +4406,7 @@
               </div>
               <div className="calendar-grid">
                 {calendarDays.map((date) => {
-                  const dateSchedules = schedules.filter((item) => item.date === date);
+                  const dateSchedules = sortScheduleItems(schedules.filter((item) => item.date === date));
                   const deadlineGrants = deadlineGrantsForDate(date, grants);
                   return (
                     <div className={`calendar-day ${date === todayKey() ? "today" : ""} ${schedulePick ? "selecting" : ""} ${companyDrag?.meetingDate === date ? "meeting-target" : ""}`} key={date} data-calendar-date={date} onClick={() => addSchedule(date)}>
@@ -4142,10 +4417,12 @@
                           const grant = grantMap[item.grantId];
                           if (!company) return null;
                           if (item.type === "meeting") {
+                            const meetingKind = normalizeScheduleKind(item.kind) || "meeting";
                             return (
-                              <div className="schedule-item schedule-meeting" key={item.id} title="드래그하면 이동, 클릭하면 삭제" onPointerDown={(e) => startScheduleMove(e, item)} onClick={(e) => { e.stopPropagation(); if (scheduleClickBlockRef.current === item.id) return; removeSchedule(item.id); }}>
-                                <span className="meeting-time">{item.time}</span>
-                                <span className="meeting-title">{company.name}</span>
+                              <div className={`schedule-item schedule-meeting ${meetingKind === "ir" || meetingKind === "work" ? "schedule-ir" : ""}`} key={item.id} title="드래그하면 이동, 클릭하면 삭제" onPointerDown={(e) => startScheduleMove(e, item)} onClick={(e) => { e.stopPropagation(); if (scheduleClickBlockRef.current === item.id) return; removeSchedule(item.id); }}>
+                                {item.time && <span className="meeting-time">{item.time}</span>}
+                                {meetingKind !== "work" && <span className="meeting-kind">{scheduleKindLabel(meetingKind)}</span>}
+                                <span className="meeting-title">{meetingKind === "work" ? `${company.name} · ${item.title || "작업"}` : company.name}</span>
                               </div>
                             );
                           }
@@ -4186,8 +4463,34 @@
             )}
           </main>
           {drag && <div className="drag-preview" style={{ left: drag.x, top: drag.y }}><span className="copy-mark">복사</span><div>{drag.title}</div></div>}
-          {companyDrag && <div className="company-drag-preview" style={{ left: companyDrag.x, top: companyDrag.y }}>{companyDrag.meetingDate ? "미팅 일정 등록" : "기업 위치 이동"}<br />{companyDrag.name}</div>}
+          {companyDrag && <div className="company-drag-preview" style={{ left: companyDrag.x, top: companyDrag.y }}>{companyDrag.meetingDate ? "일정 등록" : "기업 위치 이동"}<br />{companyDrag.name}</div>}
           {companyDrag?.marker && <div className="company-insert-marker" style={{ left: companyDrag.marker.left, top: companyDrag.marker.top, height: companyDrag.marker.height }} />}
+          {meetingForm && (
+            <div className="modal-backdrop" onClick={() => setMeetingForm(null)}>
+              <div className="modal" onClick={(event) => event.stopPropagation()} style={{ width: "380px" }}>
+                <h2>{meetingForm.companyName} 일정 등록</h2>
+                <div className="form-grid">
+                  <Field label="일정 구분">
+                    <div className="check-row">
+                      {["meeting", "ir", "work"].map((kind) => (
+                        <button type="button" className={`check-pill ${meetingForm.kind === kind ? "selected" : ""}`} key={kind} onClick={() => setMeetingForm({ ...meetingForm, kind })}>
+                          {scheduleKindLabel(kind)}
+                        </button>
+                      ))}
+                    </div>
+                  </Field>
+                  {meetingForm.kind === "meeting" && <Field label="시간"><input value={meetingForm.time} onChange={(event) => setMeetingForm({ ...meetingForm, time: event.target.value })} placeholder="예: 14, 1400, 14:30" /></Field>}
+                  {meetingForm.kind === "work" && <Field label="작업 내용"><input value={meetingForm.title || ""} onChange={(event) => setMeetingForm({ ...meetingForm, title: event.target.value })} placeholder="예: 사업계획서 보완, 자료 정리" autoFocus /></Field>}
+                </div>
+                <div className="modal-actions">
+                  <div className="action-right">
+                    <button className="text-btn" onClick={() => setMeetingForm(null)}>취소</button>
+                    <button className="text-btn primary" onClick={saveMeetingSchedule}>저장</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           {toast && <div className="toast">{toast}</div>}
           {viewingGrant && <GrantModal grant={viewingGrant} onClose={() => setViewingGrant(null)} onSave={(form) => { saveGrant(form); setViewingGrant(null); }} onDelete={viewingGrant.id ? (id) => { if (!window.confirm || window.confirm("이 지원사업을 삭제할까요?")) { deleteGrant(id); setViewingGrant(null); notify("삭제됨"); } } : null} />}
           {editingGrant && <GrantModal grant={editingGrant} onClose={() => setEditingGrant(null)} onSave={saveGrant} onDelete={editingGrant.id ? deleteGrant : null} />}
@@ -4206,7 +4509,7 @@
                 <div className="full-calendar">
                   {["일", "월", "화", "수", "목", "금", "토"].map((day) => <div className="full-weekday" key={day}>{day}</div>)}
                   {fullCalendarDays.map((date) => {
-                    const dateSchedules = schedules.filter((item) => item.date === date);
+                    const dateSchedules = sortScheduleItems(schedules.filter((item) => item.date === date));
                     const deadlineGrants = deadlineGrantsForDate(date, grants);
                     return (
                       <div className={`full-calendar-day ${date === todayKey() ? "today" : ""} ${isSameMonth(date, fullCalendarBase) ? "" : "out-month"} ${companyDrag?.meetingDate === date ? "meeting-target" : ""}`} key={date} data-calendar-date={date}>
@@ -4217,10 +4520,12 @@
                             const grant = grantMap[item.grantId];
                             if (!company) return null;
                             if (item.type === "meeting") {
+                              const meetingKind = normalizeScheduleKind(item.kind) || "meeting";
                               return (
-                                <div className="schedule-item schedule-meeting" key={item.id} title="드래그하면 일정 이동" onPointerDown={(e) => startScheduleMove(e, item)} onClick={(e) => e.stopPropagation()}>
-                                  <span className="meeting-time">{item.time}</span>
-                                  <span className="meeting-title">{company.name}</span>
+                                <div className={`schedule-item schedule-meeting ${meetingKind === "ir" || meetingKind === "work" ? "schedule-ir" : ""}`} key={item.id} title="드래그하면 일정 이동" onPointerDown={(e) => startScheduleMove(e, item)} onClick={(e) => e.stopPropagation()}>
+                                  {item.time && <span className="meeting-time">{item.time}</span>}
+                                  {meetingKind !== "work" && <span className="meeting-kind">{scheduleKindLabel(meetingKind)}</span>}
+                                  <span className="meeting-title">{meetingKind === "work" ? `${company.name} · ${item.title || "작업"}` : company.name}</span>
                                 </div>
                               );
                             }
