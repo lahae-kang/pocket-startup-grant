@@ -131,8 +131,26 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 5px;
+      gap: 3px;
       margin-right: 0;
+    }
+    .grant-copy-tab {
+      border: 1px solid #cfd8dc;
+      background: #ffffff;
+      color: #4b5563;
+      border-radius: 5px;
+      min-width: 34px;
+      height: 18px;
+      padding: 0 5px;
+      font-size: 10px;
+      line-height: 16px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .grant-copy-tab:hover {
+      border-color: #2563eb;
+      color: #2563eb;
+      background: #f8fbff;
     }
     .grant-tab:hover, .grant-tab.selected {
       background: #f6f9ff;
@@ -3778,6 +3796,39 @@
           return String(a.time || "").localeCompare(String(b.time || ""));
         });
       }
+      async function copyPlainText(text, successMessage) {
+        try {
+          if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(text);
+          } else {
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            textarea.setAttribute("readonly", "");
+            textarea.style.position = "fixed";
+            textarea.style.left = "-9999px";
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textarea);
+          }
+          notify(successMessage);
+        } catch (error) {
+          notify("복사에 실패했습니다");
+        }
+      }
+      function grantCopyText(grant) {
+        return [
+          grant.title || "-",
+          `~${grant.deadline || "-"}`,
+          grant.link ? safeUrl(grant.link) : "-",
+          `-${grant.budget || "-"}`
+        ].join("\n");
+      }
+      function copyGrantInfo(event, grant) {
+        event?.preventDefault?.();
+        event?.stopPropagation?.();
+        copyPlainText(grantCopyText(grant), "지원사업 정보 복사됨");
+      }
       function todayScheduleCopyText() {
         return sortScheduleItems(schedules.filter((item) => item.date === todayKey())).map((item) => {
           const company = companies.find((target) => target.id === item.companyId);
@@ -4272,6 +4323,7 @@
                       )}
                       <span className="grant-side">
                         <span className={ddayClass(grant.deadline)}>{ddayLabel(grant.deadline)}</span>
+                        <button className="grant-copy-tab" title="지원사업 정보 복사" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => copyGrantInfo(event, grant)}>복사</button>
                       </span>
                     </div>
                   ))}
