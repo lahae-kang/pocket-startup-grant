@@ -3410,7 +3410,7 @@
       const [logs, setLogs] = useState([]);
       const [companyOrder, setCompanyOrder] = useState(() => seedCompanies.map((company) => company.id));
       const [schedulePick, setSchedulePick] = useState(null);
-      const [calendarHeight, setCalendarHeight] = useState(252);
+      const [calendarHeight, setCalendarHeight] = useState(300);
       const [showFullCalendar, setShowFullCalendar] = useState(false);
       const [fullCalendarBase, setFullCalendarBase] = useState(todayKey());
       const [loaded, setLoaded] = useState(false);
@@ -3447,7 +3447,7 @@
             setCompanyOrder(reconcileCompanyOrder(saved.companyOrder, normalizedCompanies));
             setSchedules(saved.schedules || []);
             setLogs(saved.logs || []);
-            if (saved.calendarHeight) setCalendarHeight(Math.max(252, saved.calendarHeight));
+            if (saved.calendarHeight) setCalendarHeight(Math.max(300, saved.calendarHeight));
             setStorageReady(true);
           } else {
             setStorageReady(false);
@@ -3837,7 +3837,9 @@
           grant.title || "-",
           `~${grant.deadline || "-"}`,
           grant.link ? safeUrl(grant.link) : "-",
-          `-${grant.budget || "-"}`
+          `-${grant.budget || "-"}`,
+          "",
+          "확인해보시고 진행희망의사 전달부탁드리겠습니다!"
         ].join("\n");
       }
       function copyGrantInfo(event, grant) {
