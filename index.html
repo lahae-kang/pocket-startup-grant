@@ -476,7 +476,9 @@
       background: #fff;
       cursor: pointer;
     }
-    .dot.ready { background: #172026; border-color: #172026; }
+    .dot.request { background: #172026; border-color: #172026; }
+    .dot.progress { background: #172026; border-color: #172026; }
+    .dot.ready { background: #1e3a8a; border-color: #1e3a8a; }
     .dot.done { background: #2563eb; border-color: #2563eb; }
     .dot.passed { background: #ec4899; border-color: #ec4899; }
     .assignment-list {
@@ -585,9 +587,16 @@
       justify-content: center;
       vertical-align: middle;
     }
-    .status-btn.ready.active {
+    .status-btn.request.active,
+    .status-btn.progress.active {
       background: #172026;
       border-color: #172026;
+      color: #ffffff;
+      font-weight: 400;
+    }
+    .status-btn.ready.active {
+      background: #1e3a8a;
+      border-color: #1e3a8a;
       color: #ffffff;
       font-weight: 400;
     }
@@ -1054,7 +1063,8 @@
       font-size: 12.5px;
     }
     .schedule-grant.slim-schedule {
-      padding: 5px 48px 5px 7px;
+      padding: 3px 46px 3px 6px;
+      min-height: 24px;
     }
     .slim-schedule .schedule-grant-line {
       display: flex;
@@ -1125,8 +1135,9 @@
     }
     .slim-schedule .schedule-company {
       flex: 0 1 auto;
-      max-width: 42%;
+      max-width: 38%;
       margin-bottom: 0;
+      font-size: 11.5px;
     }
     .schedule-title {
       color: #111827;
@@ -1139,7 +1150,7 @@
     .slim-schedule .schedule-title {
       flex: 1 1 auto;
       min-width: 0;
-      font-size: 12.5px;
+      font-size: 12px;
     }
     .schedule-meta {
       position: absolute;
@@ -2656,12 +2667,19 @@
       if (status === "passed") return "합격";
       if (status === "done") return "완료";
       if (status === "ready") return "준비";
+      if (status === "progress") return "진행";
+      if (status === "request") return "요청";
       return "미배정";
     }
+    function isOpenAssignmentStatus(status) {
+      return ["request", "progress", "ready"].includes(status);
+    }
     function nextStatus(status) {
+      if (status === "request") return "progress";
+      if (status === "progress") return "ready";
       if (status === "ready") return "done";
       if (status === "done") return "passed";
-      return "ready";
+      return "request";
     }
     const memoryStorage = {
       async get(key) { return window.__artifactMemoryStore?.[key] || null; },
@@ -2849,7 +2867,7 @@
         return sortedAssignedGrantIds(company, grantMap).map((grantId) => grantMap[grantId]).filter(Boolean);
       }, [company, grantMap]);
       const readyGrants = useMemo(() => assignedGrants
-        .filter((grant) => assignmentStatus(company, grant.id) === "ready")
+        .filter((grant) => isOpenAssignmentStatus(assignmentStatus(company, grant.id)))
         .sort((a, b) => (a.deadline || "9999-12-31").localeCompare(b.deadline || "9999-12-31")),
         [assignedGrants, company]
       );
@@ -3059,7 +3077,7 @@
         const nextCompanies = savedCompanies.map((item) => {
           if (item.id !== companyId) return item;
           const nextResults = { ...(item.assignmentResults || {}) };
-          if (status === "ready") delete nextResults[grantId];
+          if (status !== "passed") delete nextResults[grantId];
           return {
             ...item,
             assignmentStatuses: { ...(item.assignmentStatuses || {}), [grantId]: status },
@@ -3552,7 +3570,7 @@
           visibleCompanies.forEach((company) => {
             const pageStart = currentCycleStart(company);
             const pageIds = sortedAssignedGrantIds(company, grantMap).slice(pageStart, pageStart + (Number(company.monthlyTarget) || 1));
-            const pageReadyIndex = pageIds.findIndex((grantId) => assignmentStatus(company, grantId) === "ready");
+            const pageReadyIndex = pageIds.findIndex((grantId) => isOpenAssignmentStatus(assignmentStatus(company, grantId)));
             if (pageReadyIndex < 0) return;
             const readyIndex = pageStart + pageReadyIndex;
             const node = assignmentListRefs.current[company.id];
@@ -3709,7 +3727,7 @@
           return {
             ...company,
             assignedGrantIds: [...(company.assignedGrantIds || []), grantId],
-            assignmentStatuses: { ...(company.assignmentStatuses || {}), [grantId]: "ready" },
+            assignmentStatuses: { ...(company.assignmentStatuses || {}), [grantId]: "request" },
             assignmentSources: { ...(company.assignmentSources || {}), [grantId]: "manager" }
           };
         })));
@@ -3908,7 +3926,7 @@
         return raw;
       }
       function isReadyDeadlineGrant(grantId) {
-        return companies.some((company) => (company.assignedGrantIds || []).includes(grantId) && assignmentStatus(company, grantId) === "ready");
+        return companies.some((company) => (company.assignedGrantIds || []).includes(grantId) && isOpenAssignmentStatus(assignmentStatus(company, grantId)));
       }
       function startScheduleMove(event, schedule) {
         if (event.target?.closest?.("button, a, input, textarea, label")) return;
@@ -3983,7 +4001,7 @@
         const target = Math.max(1, Number(form.monthlyTarget || 1));
         const assignedGrantIds = form.assignedGrantIds || [];
         const assignmentStatuses = { ...(form.assignmentStatuses || {}) };
-        assignedGrantIds.forEach((grantId) => { assignmentStatuses[grantId] = assignmentStatuses[grantId] || "ready"; });
+        assignedGrantIds.forEach((grantId) => { assignmentStatuses[grantId] = assignmentStatuses[grantId] || "request"; });
         const roundValue = form.round === "" || form.round === null || form.round === undefined ? 1 : Number(form.round);
         const next = { ...form, id: form.id || uid("c"), age: undefined, round: Number.isNaN(roundValue) ? 1 : roundValue, monthlyTarget: target, monthlyDone: Math.min(Number(form.monthlyDone || 0), target), assignedGrantIds, assignmentStatuses };
         const previousCompany = companies.find((company) => company.id === form.id);
@@ -4432,19 +4450,19 @@
                       if (!grant) return null;
                       const deadlineDiff = dayDiff(grant.deadline);
                       const currentStatus = assignmentStatus(company, grantId);
-                      const isReadyStatus = currentStatus === "ready";
+                      const isOpenStatus = isOpenAssignmentStatus(currentStatus);
                       return (
                         <React.Fragment key={grantId}>
-                          <div className={`assigned-tab ${!isReadyStatus ? "compact-done" : ""}`} data-assignment-index={index} onPointerDown={(e) => startAssignedScheduleDrag(e, company.id, grantId, grant.title)} onClick={(e) => e.stopPropagation()}>
+                          <div className={`assigned-tab ${!isOpenStatus ? "compact-done" : ""}`} data-assignment-index={index} onPointerDown={(e) => startAssignedScheduleDrag(e, company.id, grantId, grant.title)} onClick={(e) => e.stopPropagation()}>
                             <div className="assigned-main">
                               <div className="assignment-topline">
                                 <div className="status-toggle" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
                                   <button className={`status-btn ${currentStatus} active`} onClick={(e) => { e.stopPropagation(); updateAssignmentStatus(company.id, grantId, nextStatus(currentStatus)); }}>{statusLabel(currentStatus)}</button>
                                 </div>
-                                {isReadyStatus && grant.deadline && deadlineDiff !== null && deadlineDiff >= 0 && <span className={ddayClass(grant.deadline)}>{ddayLabel(grant.deadline)}</span>}
-                                {!isReadyStatus && <div className="assigned-title inline">{compactAssignedTitle(grant.title)}</div>}
+                                {isOpenStatus && grant.deadline && deadlineDiff !== null && deadlineDiff >= 0 && <span className={ddayClass(grant.deadline)}>{ddayLabel(grant.deadline)}</span>}
+                                {!isOpenStatus && <div className="assigned-title inline">{compactAssignedTitle(grant.title)}</div>}
                               </div>
-                              {isReadyStatus && <div className="assigned-title">{compactAssignedTitle(grant.title)}</div>}
+                              {isOpenStatus && <div className="assigned-title">{compactAssignedTitle(grant.title)}</div>}
                             </div>
                             <button className="remove" title="제거" onClick={(e) => { e.stopPropagation(); removeAssignment(company.id, grantId); }}>×</button>
                           </div>
@@ -4497,20 +4515,12 @@
                             );
                           }
                           if (!grant) return null;
-                          const isSlimSchedule = String(company.name || "").includes("라해");
                           return (
-                            <div className={`schedule-item ${isSlimSchedule ? "schedule-grant slim-schedule" : ""}`} key={item.id} title="드래그하면 이동, 클릭하면 삭제" onPointerDown={(e) => startScheduleMove(e, item)} onClick={(e) => { e.stopPropagation(); if (scheduleClickBlockRef.current === item.id) return; removeSchedule(item.id); }}>
-                              {isSlimSchedule ? (
-                                <div className="schedule-grant-line">
-                                  <span className="schedule-company">{company.name}</span>
-                                  <span className="schedule-title">{compactAssignedTitle(grant.title)}</span>
-                                </div>
-                              ) : (
-                                <React.Fragment>
-                                  <div className="schedule-company">{company.name}</div>
-                                  <div className="schedule-title">{compactAssignedTitle(grant.title)}</div>
-                                </React.Fragment>
-                              )}
+                            <div className="schedule-item schedule-grant slim-schedule" key={item.id} title="드래그하면 이동, 클릭하면 삭제" onPointerDown={(e) => startScheduleMove(e, item)} onClick={(e) => { e.stopPropagation(); if (scheduleClickBlockRef.current === item.id) return; removeSchedule(item.id); }}>
+                              <div className="schedule-grant-line">
+                                <span className="schedule-company">{company.name}</span>
+                                <span className="schedule-title">{compactAssignedTitle(grant.title)}</span>
+                              </div>
                               <div className={`${ddayClass(grant.deadline)} schedule-meta`}>{ddayLabel(grant.deadline)}</div>
                             </div>
                           );
@@ -4600,20 +4610,12 @@
                               );
                             }
                             if (!grant) return null;
-                            const isSlimSchedule = String(company.name || "").includes("라해");
                             return (
-                              <div className={`schedule-item ${isSlimSchedule ? "schedule-grant slim-schedule" : ""}`} key={item.id} title="드래그하면 일정 이동" onPointerDown={(e) => startScheduleMove(e, item)} onClick={(e) => e.stopPropagation()}>
-                                {isSlimSchedule ? (
-                                  <div className="schedule-grant-line">
-                                    <span className="schedule-company">{company.name}</span>
-                                    <span className="schedule-title">{grant.title}</span>
-                                  </div>
-                                ) : (
-                                  <React.Fragment>
-                                    <div className="schedule-company">{company.name}</div>
-                                    <div className="schedule-title">{grant.title}</div>
-                                  </React.Fragment>
-                                )}
+                              <div className="schedule-item schedule-grant slim-schedule" key={item.id} title="드래그하면 일정 이동" onPointerDown={(e) => startScheduleMove(e, item)} onClick={(e) => e.stopPropagation()}>
+                                <div className="schedule-grant-line">
+                                  <span className="schedule-company">{company.name}</span>
+                                  <span className="schedule-title">{grant.title}</span>
+                                </div>
                               </div>
                             );
                           })}
