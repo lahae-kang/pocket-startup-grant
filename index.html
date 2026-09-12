@@ -476,11 +476,17 @@
       background: #fff;
       cursor: pointer;
     }
-    .dot.request { background: #172026; border-color: #172026; }
-    .dot.progress { background: #172026; border-color: #172026; }
-    .dot.ready { background: #1e3a8a; border-color: #1e3a8a; }
-    .dot.done { background: #2563eb; border-color: #2563eb; }
-    .dot.passed { background: #ec4899; border-color: #ec4899; }
+    .dot.request { background: #ffffff; border-color: #172026; }
+    .dot.progress,
+    .dot.confirmed { background: #172026; border-color: #172026; }
+    .dot.ready,
+    .dot.preparing,
+    .dot.material_done { background: #1e3a8a; border-color: #1e3a8a; }
+    .dot.done,
+    .dot.delivered { background: #2563eb; border-color: #2563eb; }
+    .dot.passed,
+    .dot.paper_pass,
+    .dot.final_pass { background: #ec4899; border-color: #ec4899; }
     .assignment-list {
       flex: 1;
       overflow: hidden;
@@ -568,6 +574,7 @@
       flex: 0 0 auto;
       flex-wrap: wrap;
       justify-content: flex-end;
+      position: relative;
     }
     .status-btn {
       height: 24px;
@@ -587,31 +594,81 @@
       justify-content: center;
       vertical-align: middle;
     }
-    .status-btn.request.active,
-    .status-btn.progress.active {
+    .status-btn.request.active {
+      background: #ffffff;
+      border-color: #172026;
+      color: #172026;
+      font-weight: 400;
+    }
+    .status-btn.progress.active,
+    .status-btn.confirmed.active {
       background: #172026;
       border-color: #172026;
       color: #ffffff;
       font-weight: 400;
     }
-    .status-btn.ready.active {
+    .status-btn.ready.active,
+    .status-btn.preparing.active,
+    .status-btn.material_done.active {
       background: #1e3a8a;
       border-color: #1e3a8a;
       color: #ffffff;
       font-weight: 400;
     }
-    .status-btn.done.active {
+    .status-btn.done.active,
+    .status-btn.delivered.active {
       background: #e8f0ff;
       border-color: #7da0ff;
       color: #1d4ed8;
       font-weight: 400;
     }
-    .status-btn.passed.active {
+    .status-btn.passed.active,
+    .status-btn.paper_pass.active,
+    .status-btn.final_pass.active {
       background: #fdf2f8;
       border-color: #f9a8d4;
       color: #be185d;
       font-weight: 400;
     }
+    .status-menu {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      z-index: 50;
+      display: grid;
+      gap: 3px;
+      min-width: 74px;
+      padding: 5px;
+      border: 1px solid #d7e0e4;
+      border-radius: 8px;
+      background: #ffffff;
+      box-shadow: 0 10px 22px rgba(15, 23, 42, 0.14);
+    }
+    .status-menu-btn {
+      height: 24px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      background: #ffffff;
+      color: #172026;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 11.5px;
+      font-weight: 400;
+      text-align: left;
+      padding: 0 7px;
+      white-space: nowrap;
+    }
+    .status-menu-btn:hover {
+      background: #f5f8fa;
+    }
+    .status-menu-btn.selected {
+      border-color: #cfd8dc;
+      background: #f8fbff;
+    }
+    .status-menu-btn.black { color: #172026; }
+    .status-menu-btn.navy { color: #1e3a8a; }
+    .status-menu-btn.blue { color: #1d4ed8; }
+    .status-menu-btn.pink { color: #be185d; }
     .cycle-divider {
       display: flex;
       align-items: center;
@@ -2613,8 +2670,23 @@
     function roundLabel(company) {
       return isPocketCompany(company) ? "@" : `${Number(company.round) || 1}회차`;
     }
+    const ASSIGNMENT_STATUS_OPTIONS = [
+      { key: "confirmed", label: "컴펌완", tone: "black" },
+      { key: "preparing", label: "준비중", tone: "navy" },
+      { key: "material_done", label: "자료완", tone: "navy" },
+      { key: "delivered", label: "전달완", tone: "blue" },
+      { key: "paper_pass", label: "서합", tone: "pink" },
+      { key: "final_pass", label: "최합", tone: "pink" }
+    ];
+    function normalizeAssignmentStatus(status) {
+      if (status === "progress") return "confirmed";
+      if (status === "ready") return "preparing";
+      if (status === "done") return "delivered";
+      if (status === "passed") return "final_pass";
+      return status || "request";
+    }
     function assignmentStatus(company, grantId) {
-      return company.assignmentStatuses?.[grantId] || "ready";
+      return normalizeAssignmentStatus(company.assignmentStatuses?.[grantId] || "request");
     }
     function assignmentResult(company, grantId) {
       return company.assignmentResults?.[grantId] || "";
@@ -2660,26 +2732,25 @@
     function monthlyDoneCount(company, grantMap) {
       if (isPocketCompany(company)) return 0;
       const statuses = monthlyStatuses(company, grantMap);
-      const finished = statuses.filter((status) => ["done", "passed"].includes(status)).length;
+      const finished = statuses.filter((status) => isFinishedAssignmentStatus(status)).length;
       return Math.min(Number(company.monthlyTarget) || 1, finished);
     }
     function statusLabel(status) {
-      if (status === "passed") return "합격";
-      if (status === "done") return "완료";
-      if (status === "ready") return "준비";
-      if (status === "progress") return "진행";
-      if (status === "request") return "요청";
+      const normalized = normalizeAssignmentStatus(status);
+      if (normalized === "final_pass") return "최합";
+      if (normalized === "paper_pass") return "서합";
+      if (normalized === "delivered") return "전달완";
+      if (normalized === "material_done") return "자료완";
+      if (normalized === "preparing") return "준비중";
+      if (normalized === "confirmed") return "컴펌완";
+      if (normalized === "request") return "요청";
       return "미배정";
     }
     function isOpenAssignmentStatus(status) {
-      return ["request", "progress", "ready"].includes(status);
+      return ["request", "confirmed", "preparing", "material_done"].includes(normalizeAssignmentStatus(status));
     }
-    function nextStatus(status) {
-      if (status === "request") return "progress";
-      if (status === "progress") return "ready";
-      if (status === "ready") return "done";
-      if (status === "done") return "passed";
-      return "request";
+    function isFinishedAssignmentStatus(status) {
+      return ["delivered", "paper_pass", "final_pass"].includes(normalizeAssignmentStatus(status));
     }
     const memoryStorage = {
       async get(key) { return window.__artifactMemoryStore?.[key] || null; },
@@ -2872,7 +2943,7 @@
         [assignedGrants, company]
       );
       const completedGrants = useMemo(() => assignedGrants
-        .filter((grant) => ["done", "passed"].includes(assignmentStatus(company, grant.id)))
+        .filter((grant) => isFinishedAssignmentStatus(assignmentStatus(company, grant.id)))
         .sort((a, b) => (b.deadline || "0000-00-00").localeCompare(a.deadline || "0000-00-00")),
         [assignedGrants, company]
       );
@@ -2942,7 +3013,7 @@
             ...item,
             assignmentStatuses: {
               ...(item.assignmentStatuses || {}),
-              [grantId]: nextResult ? "passed" : "done"
+              [grantId]: nextResult ? (nextResult === "document" ? "paper_pass" : "final_pass") : "delivered"
             },
             assignmentResults: nextResults
           };
@@ -3007,7 +3078,7 @@
           return {
             ...item,
             assignedGrantIds: [...(item.assignedGrantIds || []), grantId],
-            assignmentStatuses: { ...(item.assignmentStatuses || {}), [grantId]: "ready" },
+            assignmentStatuses: { ...(item.assignmentStatuses || {}), [grantId]: "request" },
             assignmentSources: { ...(item.assignmentSources || {}), [grantId]: "customer" }
           };
         });
@@ -3077,10 +3148,11 @@
         const nextCompanies = savedCompanies.map((item) => {
           if (item.id !== companyId) return item;
           const nextResults = { ...(item.assignmentResults || {}) };
-          if (status !== "passed") delete nextResults[grantId];
+          const normalizedStatus = normalizeAssignmentStatus(status);
+          if (!["paper_pass", "final_pass"].includes(normalizedStatus)) delete nextResults[grantId];
           return {
             ...item,
-            assignmentStatuses: { ...(item.assignmentStatuses || {}), [grantId]: status },
+            assignmentStatuses: { ...(item.assignmentStatuses || {}), [grantId]: normalizedStatus },
             assignmentResults: nextResults
           };
         });
@@ -3094,7 +3166,7 @@
               id: uid("log"),
               time: new Date().toISOString(),
               action: "고객 지원사업 상태 변경",
-              detail: `${company?.name || "고객사"} / ${grantMap[grantId]?.title || "지원사업"} / ${status === "done" ? "완료" : "준비중"}`,
+              detail: `${company?.name || "고객사"} / ${grantMap[grantId]?.title || "지원사업"} / ${statusLabel(status)}`,
               undo: null,
               undone: false
             },
@@ -3145,7 +3217,7 @@
         const openUrl = safeUrl(grant.link);
         const status = assignmentStatus(company, grant.id);
         const result = assignmentResult(company, grant.id);
-        const isComplete = ["done", "passed"].includes(status);
+        const isComplete = isFinishedAssignmentStatus(status);
         const isBuilder = isBuilderAssignment(company, grant.id);
         const diff = dayDiff(grant.deadline);
         const titleNode = openUrl ? <a href={openUrl} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>{grant.title}</a> : grant.title;
@@ -3161,7 +3233,7 @@
             {!isComplete && (
               <div className="customer-ready-line">
                 <div className="customer-ready-info" title={grant.budget || grant.condition || "-"}>{grant.budget || grant.condition || "-"}</div>
-                <button className="customer-result-btn customer-ready-done" onClick={(event) => { event.stopPropagation(); updateCustomerGrantStatus(grant.id, "done"); }}>완료</button>
+                <button className="customer-result-btn customer-ready-done" onClick={(event) => { event.stopPropagation(); updateCustomerGrantStatus(grant.id, "delivered"); }}>완료</button>
               </div>
             )}
             {isComplete && (
@@ -3421,6 +3493,7 @@
       const [editingCompany, setEditingCompany] = useState(null);
       const [drag, setDrag] = useState(null);
       const [companyDrag, setCompanyDrag] = useState(null);
+      const [statusMenuKey, setStatusMenuKey] = useState("");
       const [meetingForm, setMeetingForm] = useState(null);
       const [activeCompanyTab, setActiveCompanyTab] = useState("all");
       const [showPastGrants, setShowPastGrants] = useState(false);
@@ -3612,7 +3685,7 @@
             return {
               ...target,
               assignedGrantIds: [...(target.assignedGrantIds || []), grant.id],
-              assignmentStatuses: { ...(target.assignmentStatuses || {}), [grant.id]: "ready" }
+              assignmentStatuses: { ...(target.assignmentStatuses || {}), [grant.id]: "request" }
             };
           })));
           return true;
@@ -4320,24 +4393,26 @@
         }, 40);
       }
       function updateAssignmentStatus(companyId, grantId, status) {
+        const normalizedStatus = normalizeAssignmentStatus(status);
         const targetCompany = companies.find((company) => company.id === companyId);
         const companyName = targetCompany?.name || "기업";
         const grantTitle = grantMap[grantId]?.title || "지원사업";
-        const previousStatus = targetCompany?.assignmentStatuses?.[grantId] || "";
+        const previousStatus = normalizeAssignmentStatus(targetCompany?.assignmentStatuses?.[grantId] || "");
         const previousResult = targetCompany?.assignmentResults?.[grantId] || "";
         const stableOrder = reconcileCompanyOrder(companyOrder, companies);
         setCompanyOrder(stableOrder);
         setCompanies((current) => orderCompaniesByIds(current.map((company) => {
           if (company.id !== companyId) return company;
           const nextResults = { ...(company.assignmentResults || {}) };
-          if (status === "ready") delete nextResults[grantId];
-          if (status === "passed") nextResults[grantId] = nextResults[grantId] || "final";
-          return { ...company, assignmentStatuses: { ...(company.assignmentStatuses || {}), [grantId]: status }, assignmentResults: nextResults };
+          if (!["paper_pass", "final_pass"].includes(normalizedStatus)) delete nextResults[grantId];
+          if (normalizedStatus === "paper_pass") nextResults[grantId] = "document";
+          if (normalizedStatus === "final_pass") nextResults[grantId] = "final";
+          return { ...company, assignmentStatuses: { ...(company.assignmentStatuses || {}), [grantId]: normalizedStatus }, assignmentResults: nextResults };
         }), stableOrder));
-        addLog("진행상태 변경", `${companyName} / ${grantTitle} / ${statusLabel(status)}`, { type: "status", companyId, grantId, previousStatus, previousResult });
+        addLog("진행상태 변경", `${companyName} / ${grantTitle} / ${statusLabel(normalizedStatus)}`, { type: "status", companyId, grantId, previousStatus, previousResult });
       }
       return (
-        <div className="grant-app">
+        <div className="grant-app" onClick={() => setStatusMenuKey("")}>
           <aside className="left-panel">
             <div className="panel-head">
               <div><h1 className="title add-trigger" role="button" tabIndex={0} onClick={() => setEditingGrant({})} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") setEditingGrant({}); }}>지원사업</h1></div>
@@ -4451,13 +4526,32 @@
                       const deadlineDiff = dayDiff(grant.deadline);
                       const currentStatus = assignmentStatus(company, grantId);
                       const isOpenStatus = isOpenAssignmentStatus(currentStatus);
+                      const currentStatusMenuKey = `${company.id}:${grantId}`;
+                      const isStatusMenuOpen = statusMenuKey === currentStatusMenuKey;
                       return (
                         <React.Fragment key={grantId}>
                           <div className={`assigned-tab ${!isOpenStatus ? "compact-done" : ""}`} data-assignment-index={index} onPointerDown={(e) => startAssignedScheduleDrag(e, company.id, grantId, grant.title)} onClick={(e) => e.stopPropagation()}>
                             <div className="assigned-main">
                               <div className="assignment-topline">
                                 <div className="status-toggle" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
-                                  <button className={`status-btn ${currentStatus} active`} onClick={(e) => { e.stopPropagation(); updateAssignmentStatus(company.id, grantId, nextStatus(currentStatus)); }}>{statusLabel(currentStatus)}</button>
+                                  <button className={`status-btn ${currentStatus} active`} onClick={(e) => { e.stopPropagation(); setStatusMenuKey((value) => value === currentStatusMenuKey ? "" : currentStatusMenuKey); }}>{statusLabel(currentStatus)}</button>
+                                  {isStatusMenuOpen && (
+                                    <div className="status-menu" onClick={(e) => e.stopPropagation()}>
+                                      {ASSIGNMENT_STATUS_OPTIONS.map((option) => (
+                                        <button
+                                          key={option.key}
+                                          className={`status-menu-btn ${option.tone} ${currentStatus === option.key ? "selected" : ""}`}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            updateAssignmentStatus(company.id, grantId, option.key);
+                                            setStatusMenuKey("");
+                                          }}
+                                        >
+                                          {option.label}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
                                 </div>
                                 {isOpenStatus && grant.deadline && deadlineDiff !== null && deadlineDiff >= 0 && <span className={ddayClass(grant.deadline)}>{ddayLabel(grant.deadline)}</span>}
                                 {!isOpenStatus && <div className="assigned-title inline">{compactAssignedTitle(grant.title)}</div>}
