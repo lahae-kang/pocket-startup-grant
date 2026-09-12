@@ -476,14 +476,17 @@
       background: #fff;
       cursor: pointer;
     }
-    .dot.request { background: #ffffff; border-color: #172026; }
+    .dot.request,
+    .dot.confirmed { background: #ffffff; border-color: #172026; }
     .dot.progress,
-    .dot.confirmed { background: #172026; border-color: #172026; }
-    .dot.ready,
     .dot.preparing,
-    .dot.material_done { background: #1e3a8a; border-color: #1e3a8a; }
+    .dot.ceo { background: #172026; border-color: #172026; }
+    .dot.ready,
+    .dot.material_done,
+    .dot.meeting { background: #2563eb; border-color: #2563eb; }
     .dot.done,
-    .dot.delivered { background: #2563eb; border-color: #2563eb; }
+    .dot.delivered,
+    .dot.completed { background: #1e3a8a; border-color: #1e3a8a; }
     .dot.passed,
     .dot.paper_pass,
     .dot.final_pass { background: #ec4899; border-color: #ec4899; }
@@ -594,22 +597,30 @@
       justify-content: center;
       vertical-align: middle;
     }
-    .status-btn.request.active {
+    .status-btn.request.active,
+    .status-btn.confirmed.active {
       background: #ffffff;
       border-color: #172026;
       color: #172026;
       font-weight: 400;
     }
     .status-btn.progress.active,
-    .status-btn.confirmed.active {
+    .status-btn.preparing.active,
+    .status-btn.ceo.active {
       background: #172026;
       border-color: #172026;
       color: #ffffff;
       font-weight: 400;
     }
     .status-btn.ready.active,
-    .status-btn.preparing.active,
-    .status-btn.material_done.active {
+    .status-btn.material_done.active,
+    .status-btn.meeting.active {
+      background: #e8f0ff;
+      border-color: #7da0ff;
+      color: #1d4ed8;
+      font-weight: 400;
+    }
+    .status-btn.completed.active {
       background: #1e3a8a;
       border-color: #1e3a8a;
       color: #ffffff;
@@ -617,9 +628,9 @@
     }
     .status-btn.done.active,
     .status-btn.delivered.active {
-      background: #e8f0ff;
-      border-color: #7da0ff;
-      color: #1d4ed8;
+      background: #1e3a8a;
+      border-color: #1e3a8a;
+      color: #ffffff;
       font-weight: 400;
     }
     .status-btn.passed.active,
@@ -697,6 +708,24 @@
       text-align: center;
       align-self: flex-start;
       margin-left: 1px;
+    }
+    .assignment-note-btn {
+      flex: 0 0 16px;
+      width: 16px;
+      height: 18px;
+      border: 0;
+      background: transparent;
+      color: #9aa6ac;
+      cursor: pointer;
+      font-size: 12px;
+      line-height: 1;
+      padding: 0;
+      align-self: flex-start;
+      opacity: 0.68;
+    }
+    .assignment-note-btn.active {
+      color: #172026;
+      opacity: 1;
     }
     .empty { color: #8a979e; font-size: 13px; padding: 10px 4px; }
     .drop-empty {
@@ -2418,7 +2447,8 @@
           assignedGrantIds: Array.isArray(company.assignedGrantIds) ? company.assignedGrantIds.filter(Boolean) : [],
           assignmentStatuses: company.assignmentStatuses && typeof company.assignmentStatuses === "object" ? company.assignmentStatuses : {},
           assignmentResults: company.assignmentResults && typeof company.assignmentResults === "object" ? company.assignmentResults : {},
-          assignmentSources: company.assignmentSources && typeof company.assignmentSources === "object" ? company.assignmentSources : {}
+          assignmentSources: company.assignmentSources && typeof company.assignmentSources === "object" ? company.assignmentSources : {},
+          assignmentNotes: company.assignmentNotes && typeof company.assignmentNotes === "object" ? company.assignmentNotes : {}
         }));
     }
     function keepCompanyOrder(referenceCompanies, nextCompanies) {
@@ -2671,17 +2701,22 @@
       return isPocketCompany(company) ? "@" : `${Number(company.round) || 1}회차`;
     }
     const ASSIGNMENT_STATUS_OPTIONS = [
+      { key: "request", label: "추천", tone: "black" },
       { key: "confirmed", label: "컴펌완", tone: "black" },
-      { key: "preparing", label: "준비중", tone: "navy" },
-      { key: "material_done", label: "자료완", tone: "navy" },
-      { key: "delivered", label: "전달완", tone: "blue" },
+      { key: "preparing", label: "준비중", tone: "black" },
+      { key: "material_done", label: "자료완", tone: "blue" },
+      { key: "meeting", label: "미팅", tone: "blue" },
+      { key: "ceo", label: "대표님", tone: "black" },
+      { key: "completed", label: "완료", tone: "navy" },
       { key: "paper_pass", label: "서합", tone: "pink" },
       { key: "final_pass", label: "최합", tone: "pink" }
     ];
+    const ASSIGNMENT_STATUS_SEQUENCE = ASSIGNMENT_STATUS_OPTIONS.map((option) => option.key);
     function normalizeAssignmentStatus(status) {
       if (status === "progress") return "confirmed";
       if (status === "ready") return "preparing";
-      if (status === "done") return "delivered";
+      if (status === "done") return "completed";
+      if (status === "delivered") return "completed";
       if (status === "passed") return "final_pass";
       return status || "request";
     }
@@ -2693,6 +2728,9 @@
     }
     function assignmentSource(company, grantId) {
       return company.assignmentSources?.[grantId] || "";
+    }
+    function assignmentNote(company, grantId) {
+      return company.assignmentNotes?.[grantId] || "";
     }
     function isBuilderAssignment(company, grantId) {
       const source = assignmentSource(company, grantId);
@@ -2739,18 +2777,25 @@
       const normalized = normalizeAssignmentStatus(status);
       if (normalized === "final_pass") return "최합";
       if (normalized === "paper_pass") return "서합";
-      if (normalized === "delivered") return "전달완";
+      if (normalized === "completed") return "완료";
+      if (normalized === "ceo") return "대표님";
+      if (normalized === "meeting") return "미팅";
       if (normalized === "material_done") return "자료완";
       if (normalized === "preparing") return "준비중";
       if (normalized === "confirmed") return "컴펌완";
-      if (normalized === "request") return "요청";
+      if (normalized === "request") return "추천";
       return "미배정";
     }
     function isOpenAssignmentStatus(status) {
-      return ["request", "confirmed", "preparing", "material_done"].includes(normalizeAssignmentStatus(status));
+      return ["request", "confirmed", "preparing", "material_done", "meeting", "ceo"].includes(normalizeAssignmentStatus(status));
     }
     function isFinishedAssignmentStatus(status) {
-      return ["delivered", "paper_pass", "final_pass"].includes(normalizeAssignmentStatus(status));
+      return ["completed", "paper_pass", "final_pass"].includes(normalizeAssignmentStatus(status));
+    }
+    function nextAssignmentStatus(status) {
+      const normalized = normalizeAssignmentStatus(status);
+      const index = ASSIGNMENT_STATUS_SEQUENCE.indexOf(normalized);
+      return ASSIGNMENT_STATUS_SEQUENCE[(index + 1) % ASSIGNMENT_STATUS_SEQUENCE.length] || "request";
     }
     const memoryStorage = {
       async get(key) { return window.__artifactMemoryStore?.[key] || null; },
@@ -3013,7 +3058,7 @@
             ...item,
             assignmentStatuses: {
               ...(item.assignmentStatuses || {}),
-              [grantId]: nextResult ? (nextResult === "document" ? "paper_pass" : "final_pass") : "delivered"
+              [grantId]: nextResult ? (nextResult === "document" ? "paper_pass" : "final_pass") : "completed"
             },
             assignmentResults: nextResults
           };
@@ -3233,7 +3278,7 @@
             {!isComplete && (
               <div className="customer-ready-line">
                 <div className="customer-ready-info" title={grant.budget || grant.condition || "-"}>{grant.budget || grant.condition || "-"}</div>
-                <button className="customer-result-btn customer-ready-done" onClick={(event) => { event.stopPropagation(); updateCustomerGrantStatus(grant.id, "delivered"); }}>완료</button>
+                <button className="customer-result-btn customer-ready-done" onClick={(event) => { event.stopPropagation(); updateCustomerGrantStatus(grant.id, "completed"); }}>완료</button>
               </div>
             )}
             {isComplete && (
@@ -3491,6 +3536,7 @@
       const [editingGrant, setEditingGrant] = useState(null);
       const [viewingGrant, setViewingGrant] = useState(null);
       const [editingCompany, setEditingCompany] = useState(null);
+      const [assignmentNoteForm, setAssignmentNoteForm] = useState(null);
       const [drag, setDrag] = useState(null);
       const [companyDrag, setCompanyDrag] = useState(null);
       const [statusMenuKey, setStatusMenuKey] = useState("");
@@ -3510,23 +3556,15 @@
       const assignmentListRefs = useRef({});
       const companyRowRef = useRef(null);
       const companyClickTimer = useRef(null);
+      const statusClickTimerRef = useRef(null);
       const scheduleClickBlockRef = useRef("");
       const saveRequestRef = useRef(0);
       const companyOrderKey = companyOrder.join("|");
       function scrollCompanyBoardStart() {
-        const node = companyRowRef.current;
-        if (!node) return;
-        node.scrollLeft = 0;
-        node.scrollTop = 0;
-        window.requestAnimationFrame?.(() => {
-          node.scrollLeft = 0;
-          node.scrollTop = 0;
-        });
+        return;
       }
       function queueCompanyBoardStart(delay = 0) {
-        window.setTimeout(scrollCompanyBoardStart, delay);
-        window.setTimeout(scrollCompanyBoardStart, delay + 120);
-        window.setTimeout(scrollCompanyBoardStart, delay + 260);
+        return;
       }
       useEffect(() => {
         if ("scrollRestoration" in window.history) window.history.scrollRestoration = "manual";
@@ -3548,20 +3586,6 @@
           setLoaded(true);
         });
       }, []);
-      useEffect(() => {
-        if (!loaded || activeCompanyTab === "log") return;
-        const timer = window.setTimeout(scrollCompanyBoardStart, 80);
-        return () => window.clearTimeout(timer);
-      }, [loaded, activeCompanyTab, companyOrderKey, companies.length, grants.length]);
-      useEffect(() => {
-        if (!loaded || activeCompanyTab === "log") return;
-        queueCompanyBoardStart(0);
-      }, [companies, grants, schedules, loaded, activeCompanyTab]);
-      useEffect(() => {
-        if (!loaded || activeCompanyTab === "log") return;
-        const node = companyRowRef.current;
-        if (node) node.scrollLeft = 0;
-      });
       useEffect(() => {
         if (!loaded) return;
         setCompanyOrder((current) => {
@@ -3637,23 +3661,6 @@
           displayCompanies.filter((_, index) => index % 2 === 1)
         ];
       }, [displayCompanies]);
-      useEffect(() => {
-        if (!loaded || activeCompanyTab === "log") return;
-        const timer = window.setTimeout(() => {
-          visibleCompanies.forEach((company) => {
-            const pageStart = currentCycleStart(company);
-            const pageIds = sortedAssignedGrantIds(company, grantMap).slice(pageStart, pageStart + (Number(company.monthlyTarget) || 1));
-            const pageReadyIndex = pageIds.findIndex((grantId) => isOpenAssignmentStatus(assignmentStatus(company, grantId)));
-            if (pageReadyIndex < 0) return;
-            const readyIndex = pageStart + pageReadyIndex;
-            const node = assignmentListRefs.current[company.id];
-            const child = node?.querySelector?.(`[data-assignment-index="${readyIndex}"]`);
-            if (child?.scrollIntoView) child.scrollIntoView({ block: "start" });
-            else if (node) node.scrollTop = 0;
-          });
-        }, 80);
-        return () => window.clearTimeout(timer);
-      }, [visibleCompanies, grantMap, activeCompanyTab, loaded]);
       function notify(message) { setToast(message); }
       function addLog(action, detail, undo) {
         setLogs((current) => [{ id: uid("log"), time: new Date().toISOString(), action, detail, undo, undone: false }, ...current].slice(0, 300));
@@ -3673,10 +3680,12 @@
               const nextStatuses = { ...(target.assignmentStatuses || {}) };
               const nextResults = { ...(target.assignmentResults || {}) };
               const nextSources = { ...(target.assignmentSources || {}) };
+              const nextNotes = { ...(target.assignmentNotes || {}) };
               delete nextStatuses[grant.id];
               delete nextResults[grant.id];
               delete nextSources[grant.id];
-              return { ...target, assignedGrantIds: (target.assignedGrantIds || []).filter((id) => id !== grant.id), assignmentStatuses: nextStatuses, assignmentResults: nextResults, assignmentSources: nextSources };
+              delete nextNotes[grant.id];
+              return { ...target, assignedGrantIds: (target.assignedGrantIds || []).filter((id) => id !== grant.id), assignmentStatuses: nextStatuses, assignmentResults: nextResults, assignmentSources: nextSources, assignmentNotes: nextNotes };
             })));
             return true;
           }
@@ -3728,10 +3737,12 @@
             const nextStatuses = { ...(company.assignmentStatuses || {}) };
             const nextResults = { ...(company.assignmentResults || {}) };
             const nextSources = { ...(company.assignmentSources || {}) };
+            const nextNotes = { ...(company.assignmentNotes || {}) };
             delete nextStatuses[undo.grantId];
             delete nextResults[undo.grantId];
             delete nextSources[undo.grantId];
-            return { ...company, assignedGrantIds: (company.assignedGrantIds || []).filter((id) => id !== undo.grantId), assignmentStatuses: nextStatuses, assignmentResults: nextResults, assignmentSources: nextSources };
+            delete nextNotes[undo.grantId];
+            return { ...company, assignedGrantIds: (company.assignedGrantIds || []).filter((id) => id !== undo.grantId), assignmentStatuses: nextStatuses, assignmentResults: nextResults, assignmentSources: nextSources, assignmentNotes: nextNotes };
           })));
         } else if (undo.type === "removeAssignment") {
           setCompanies((current) => keepCompanyOrder(current, current.map((company) => {
@@ -3741,10 +3752,12 @@
             const nextStatuses = { ...(company.assignmentStatuses || {}) };
             const nextResults = { ...(company.assignmentResults || {}) };
             const nextSources = { ...(company.assignmentSources || {}) };
+            const nextNotes = { ...(company.assignmentNotes || {}) };
             if (undo.status) nextStatuses[undo.grantId] = undo.status;
             if (undo.result) nextResults[undo.grantId] = undo.result;
             if (undo.source) nextSources[undo.grantId] = undo.source;
-            return { ...company, assignedGrantIds: ids, assignmentStatuses: nextStatuses, assignmentResults: nextResults, assignmentSources: nextSources };
+            if (undo.note) nextNotes[undo.grantId] = undo.note;
+            return { ...company, assignedGrantIds: ids, assignmentStatuses: nextStatuses, assignmentResults: nextResults, assignmentSources: nextSources, assignmentNotes: nextNotes };
           })));
         } else if (undo.type === "addSchedule") {
           setSchedules((current) => current.filter((schedule) => schedule.id !== undo.schedule.id));
@@ -3768,6 +3781,14 @@
             if (undo.previousResult) nextResults[undo.grantId] = undo.previousResult;
             else delete nextResults[undo.grantId];
             return { ...company, assignmentStatuses: nextStatuses, assignmentResults: nextResults };
+          })));
+        } else if (undo.type === "assignmentNote") {
+          setCompanies((current) => keepCompanyOrder(current, current.map((company) => {
+            if (company.id !== undo.companyId) return company;
+            const nextNotes = { ...(company.assignmentNotes || {}) };
+            if (undo.previousNote) nextNotes[undo.grantId] = undo.previousNote;
+            else delete nextNotes[undo.grantId];
+            return { ...company, assignmentNotes: nextNotes };
           })));
         } else if (undo.type === "moveCompany") {
           setCompanies((current) => {
@@ -3817,17 +3838,20 @@
         const status = targetCompany?.assignmentStatuses?.[grantId] || "";
         const result = targetCompany?.assignmentResults?.[grantId] || "";
         const source = targetCompany?.assignmentSources?.[grantId] || "";
+        const note = targetCompany?.assignmentNotes?.[grantId] || "";
         setCompanies((current) => keepCompanyOrder(current, current.map((company) => {
           if (company.id !== companyId) return company;
           const nextStatuses = { ...(company.assignmentStatuses || {}) };
           const nextResults = { ...(company.assignmentResults || {}) };
           const nextSources = { ...(company.assignmentSources || {}) };
+          const nextNotes = { ...(company.assignmentNotes || {}) };
           delete nextStatuses[grantId];
           delete nextResults[grantId];
           delete nextSources[grantId];
-          return { ...company, assignedGrantIds: (company.assignedGrantIds || []).filter((id) => id !== grantId), assignmentStatuses: nextStatuses, assignmentResults: nextResults, assignmentSources: nextSources };
+          delete nextNotes[grantId];
+          return { ...company, assignedGrantIds: (company.assignedGrantIds || []).filter((id) => id !== grantId), assignmentStatuses: nextStatuses, assignmentResults: nextResults, assignmentSources: nextSources, assignmentNotes: nextNotes };
         })));
-        addLog("지원사업 제거", `${companyName} / ${grantTitle}`, { type: "removeAssignment", companyId, grantId, index, status, result, source });
+        addLog("지원사업 제거", `${companyName} / ${grantTitle}`, { type: "removeAssignment", companyId, grantId, index, status, result, source, note });
       }
       function addSchedule(date) {
         if (!schedulePick) return;
@@ -4063,10 +4087,12 @@
           const nextStatuses = { ...(company.assignmentStatuses || {}) };
           const nextResults = { ...(company.assignmentResults || {}) };
           const nextSources = { ...(company.assignmentSources || {}) };
+          const nextNotes = { ...(company.assignmentNotes || {}) };
           delete nextStatuses[id];
           delete nextResults[id];
           delete nextSources[id];
-          return { ...company, assignedGrantIds: (company.assignedGrantIds || []).filter((grantId) => grantId !== id), assignmentStatuses: nextStatuses, assignmentResults: nextResults, assignmentSources: nextSources };
+          delete nextNotes[id];
+          return { ...company, assignedGrantIds: (company.assignedGrantIds || []).filter((grantId) => grantId !== id), assignmentStatuses: nextStatuses, assignmentResults: nextResults, assignmentSources: nextSources, assignmentNotes: nextNotes };
         })));
         setEditingGrant(null);
       }
@@ -4383,14 +4409,6 @@
         const round = Math.max(0, nextRound);
         updateCompany(company.id, { round });
         addLog("회차 변경", `${company.name} / ${roundLabel({ ...company, round })}`, { type: "round", companyId: company.id, previousRound: company.round });
-        window.setTimeout(() => {
-          const node = assignmentListRefs.current[company.id];
-          if (!node) return;
-          const target = Math.max(0, (round - 1) * (Number(company.monthlyTarget) || 1));
-          const child = node.querySelector?.(`[data-assignment-index="${target}"]`);
-          if (child?.scrollIntoView) child.scrollIntoView({ block: "start", behavior: "smooth" });
-          else node.scrollTop = node.scrollHeight;
-        }, 40);
       }
       function updateAssignmentStatus(companyId, grantId, status) {
         const normalizedStatus = normalizeAssignmentStatus(status);
@@ -4410,6 +4428,53 @@
           return { ...company, assignmentStatuses: { ...(company.assignmentStatuses || {}), [grantId]: normalizedStatus }, assignmentResults: nextResults };
         }), stableOrder));
         addLog("진행상태 변경", `${companyName} / ${grantTitle} / ${statusLabel(normalizedStatus)}`, { type: "status", companyId, grantId, previousStatus, previousResult });
+      }
+      function editAssignmentNote(companyId, grantId) {
+        const targetCompany = companies.find((company) => company.id === companyId);
+        const previousNote = targetCompany?.assignmentNotes?.[grantId] || "";
+        setAssignmentNoteForm({ companyId, grantId, note: previousNote });
+      }
+      function saveAssignmentNote() {
+        if (!assignmentNoteForm) return;
+        const { companyId, grantId } = assignmentNoteForm;
+        const targetCompany = companies.find((company) => company.id === companyId);
+        const companyName = targetCompany?.name || "기업";
+        const grantTitle = grantMap[grantId]?.title || "지원사업";
+        const previousNote = targetCompany?.assignmentNotes?.[grantId] || "";
+        const trimmed = (assignmentNoteForm.note || "").trim();
+        if (trimmed === previousNote) {
+          setAssignmentNoteForm(null);
+          return;
+        }
+        setCompanies((current) => keepCompanyOrder(current, current.map((company) => {
+          if (company.id !== companyId) return company;
+          const nextNotes = { ...(company.assignmentNotes || {}) };
+          if (trimmed) nextNotes[grantId] = trimmed;
+          else delete nextNotes[grantId];
+          return { ...company, assignmentNotes: nextNotes };
+        })));
+        addLog(trimmed ? "체크 메모 저장" : "체크 메모 삭제", `${companyName} / ${grantTitle}`, { type: "assignmentNote", companyId, grantId, previousNote });
+        setAssignmentNoteForm(null);
+        notify(trimmed ? "메모 저장됨" : "메모 삭제됨");
+      }
+      function clearStatusClickTimer() {
+        if (!statusClickTimerRef.current) return;
+        window.clearTimeout(statusClickTimerRef.current);
+        statusClickTimerRef.current = null;
+      }
+      function handleStatusClick(event, companyId, grantId, currentStatus) {
+        event.stopPropagation();
+        clearStatusClickTimer();
+        statusClickTimerRef.current = window.setTimeout(() => {
+          updateAssignmentStatus(companyId, grantId, nextAssignmentStatus(currentStatus));
+          setStatusMenuKey("");
+          statusClickTimerRef.current = null;
+        }, 220);
+      }
+      function handleStatusDoubleClick(event, menuKey) {
+        event.stopPropagation();
+        clearStatusClickTimer();
+        setStatusMenuKey((value) => value === menuKey ? "" : menuKey);
       }
       return (
         <div className="grant-app" onClick={() => setStatusMenuKey("")}>
@@ -4528,13 +4593,21 @@
                       const isOpenStatus = isOpenAssignmentStatus(currentStatus);
                       const currentStatusMenuKey = `${company.id}:${grantId}`;
                       const isStatusMenuOpen = statusMenuKey === currentStatusMenuKey;
+                      const note = assignmentNote(company, grantId);
                       return (
                         <React.Fragment key={grantId}>
                           <div className={`assigned-tab ${!isOpenStatus ? "compact-done" : ""}`} data-assignment-index={index} onPointerDown={(e) => startAssignedScheduleDrag(e, company.id, grantId, grant.title)} onClick={(e) => e.stopPropagation()}>
                             <div className="assigned-main">
                               <div className="assignment-topline">
                                 <div className="status-toggle" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
-                                  <button className={`status-btn ${currentStatus} active`} onClick={(e) => { e.stopPropagation(); setStatusMenuKey((value) => value === currentStatusMenuKey ? "" : currentStatusMenuKey); }}>{statusLabel(currentStatus)}</button>
+                                  <button
+                                    className={`status-btn ${currentStatus} active`}
+                                    onClick={(e) => handleStatusClick(e, company.id, grantId, currentStatus)}
+                                    onDoubleClick={(e) => handleStatusDoubleClick(e, currentStatusMenuKey)}
+                                    title="클릭: 다음 단계 / 더블클릭: 단계 선택"
+                                  >
+                                    {statusLabel(currentStatus)}
+                                  </button>
                                   {isStatusMenuOpen && (
                                     <div className="status-menu" onClick={(e) => e.stopPropagation()}>
                                       {ASSIGNMENT_STATUS_OPTIONS.map((option) => (
@@ -4558,6 +4631,16 @@
                               </div>
                               {isOpenStatus && <div className="assigned-title">{compactAssignedTitle(grant.title)}</div>}
                             </div>
+                            {(isOpenStatus || note) && (
+                              <button
+                                className={`assignment-note-btn ${note ? "active" : ""}`}
+                                title={note || "체크 메모 입력"}
+                                onPointerDown={(e) => e.stopPropagation()}
+                                onClick={(e) => { e.stopPropagation(); editAssignmentNote(company.id, grantId); }}
+                              >
+                                ✅
+                              </button>
+                            )}
                             <button className="remove" title="제거" onClick={(e) => { e.stopPropagation(); removeAssignment(company.id, grantId); }}>×</button>
                           </div>
                         </React.Fragment>
@@ -4669,6 +4752,23 @@
           {viewingGrant && <GrantModal grant={viewingGrant} onClose={() => setViewingGrant(null)} onSave={(form) => { saveGrant(form); setViewingGrant(null); }} onDelete={viewingGrant.id ? (id) => { if (!window.confirm || window.confirm("이 지원사업을 삭제할까요?")) { deleteGrant(id); setViewingGrant(null); notify("삭제됨"); } } : null} />}
           {editingGrant && <GrantModal grant={editingGrant} onClose={() => setEditingGrant(null)} onSave={saveGrant} onDelete={editingGrant.id ? deleteGrant : null} />}
           {editingCompany && <CompanyModal company={editingCompany} onClose={() => setEditingCompany(null)} onSave={saveCompany} onDelete={editingCompany.id ? deleteCompany : null} />}
+          {assignmentNoteForm && (
+            <div className="modal-backdrop" onClick={(event) => { if (event.target === event.currentTarget) saveAssignmentNote(); }}>
+              <div className="modal" style={{ width: "560px", maxWidth: "calc(100vw - 32px)" }} onClick={(event) => event.stopPropagation()}>
+                <h2>{companies.find((company) => company.id === assignmentNoteForm.companyId)?.name || "기업"} - {grantMap[assignmentNoteForm.grantId]?.title || "지원사업"}</h2>
+                <div className="form-grid">
+                  <textarea
+                    value={assignmentNoteForm.note || ""}
+                    onChange={(event) => setAssignmentNoteForm({ ...assignmentNoteForm, note: event.target.value })}
+                    placeholder="주의하거나 체크해야 하는 내용을 입력하세요"
+                    autoFocus
+                    rows="12"
+                    style={{ minHeight: "220px", resize: "vertical" }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
           {showFullCalendar && (
             <div className="modal-backdrop">
               <div className="modal" style={{ width: "900px" }}>
