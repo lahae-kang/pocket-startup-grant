@@ -668,9 +668,6 @@
     .assigned-tab.has-allocations.soft-blue {
       background: var(--allocation-bg);
     }
-    .assigned-tab.has-allocations.compact-done {
-      background: var(--allocation-completed);
-    }
     .assigned-tab.material-done,
     .assigned-tab.has-allocations.material-done {
       background: #ffffff;
@@ -2842,8 +2839,7 @@
       return {
         "--allocation-bg": yellow(lightness),
         "--allocation-border": yellow(lightness - 5),
-        "--allocation-tint": yellow(100 - (100 - lightness) * 0.5),
-        "--allocation-completed": yellow(100 - (100 - lightness) * 0.14)
+        "--allocation-tint": yellow(100 - (100 - lightness) * 0.5)
       };
     }
     function assignmentResult(company, grantId) {
