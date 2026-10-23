@@ -111,6 +111,59 @@
       margin-bottom: 8px;
       box-shadow: 0 3px 10px rgba(15, 23, 42, 0.07);
     }
+    .grant-entry { margin-bottom: 8px; }
+    .grant-entry .grant-tab { margin-bottom: 0; }
+    .grant-entry .grant-tab.has-allocations {
+      background: var(--allocation-bg);
+      border-color: var(--allocation-border);
+    }
+    .grant-entry .grant-tab.has-allocations:hover,
+    .grant-entry .grant-tab.has-allocations.selected {
+      background: var(--allocation-bg);
+      border-color: #9db7ff;
+    }
+    .grant-tab.has-allocations.highlight { box-shadow: inset 0 0 0 2px #2563eb; }
+    .grant-actions { display: flex; align-items: center; gap: 3px; }
+    .grant-actions .grant-copy-tab { min-width: 29px; padding: 0 3px; }
+    .grant-roll-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      width: 26px;
+      height: 18px;
+      padding: 0;
+      border: 1px solid #cfd8dc;
+      border-radius: 5px;
+      background: #ffffff;
+      color: #4b5563;
+      font: inherit;
+      font-size: 10px;
+      cursor: pointer;
+    }
+    .grant-roll-toggle:hover,
+    .grant-roll-toggle[aria-expanded="true"] { border-color: #94a3b8; background: #f8fafc; }
+    .grant-roll-toggle:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+    .grant-roll {
+      margin-top: 3px;
+      padding: 5px 9px;
+      border: 1px solid var(--allocation-border, #e3e8eb);
+      border-radius: 6px;
+      background: #ffffff;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+    .grant-roll-name {
+      padding: 4px 0;
+      color: #171717;
+      font-size: 12px;
+      line-height: 1.4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .grant-roll-name.recommendation { color: #b4bbc2; }
+    .grant-roll-empty { padding: 4px 0; color: #8a979e; font-size: 12px; }
     .grant-link-chip {
       height: 21px;
       border-radius: 999px;
@@ -127,7 +180,7 @@
       line-height: 1;
     }
     .grant-side {
-      flex: 0 0 46px;
+      flex: 0 0 58px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -163,7 +216,7 @@
     }
     .grant-name {
       flex: 0 1 auto;
-      max-width: calc(100% - 50px);
+      max-width: calc(100% - 63px);
       font-size: 14px;
       line-height: 1.3;
       font-weight: 500;
@@ -536,6 +589,19 @@
       border-color: #b7c8ff;
       box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
     }
+    .assigned-tab.status-menu-open {
+      position: relative;
+      z-index: 60;
+    }
+    .assigned-tab.soft-blue {
+      background: #f7fbff;
+      border-color: #d6e7ff;
+      box-shadow: 0 2px 7px rgba(37, 99, 235, 0.055);
+    }
+    .assigned-tab.soft-blue:hover {
+      border-color: #c6dcff;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.09);
+    }
     .assigned-main {
       min-width: 0;
       flex: 1 1 auto;
@@ -560,8 +626,54 @@
       font-size: 12.5px;
     }
     .assigned-tab.compact-done {
-      padding-top: 8px;
-      padding-bottom: 8px;
+      padding: 4px 6px;
+      background: #fafbfb;
+      border-color: #e3e8eb;
+      box-shadow: none;
+      color: #66727a;
+      opacity: 0.92;
+    }
+    .assigned-tab.compact-done:hover {
+      border-color: #d8e0e4;
+      box-shadow: none;
+    }
+    .assigned-tab.compact-done .assigned-title {
+      color: #637078;
+      font-weight: 500;
+    }
+    .assigned-tab.compact-done .assignment-topline {
+      min-height: 20px;
+      gap: 4px;
+    }
+    .assigned-tab.compact-done .status-btn {
+      height: 20px;
+      min-width: 34px;
+      border-radius: 6px;
+      padding: 0 6px;
+      font-size: 11px;
+    }
+    .assigned-tab.compact-done .remove,
+    .assigned-tab.compact-done .assignment-note-btn {
+      color: #8b969d;
+      opacity: 0.78;
+    }
+    .assigned-tab.compact-done .assignment-note-btn.active {
+      color: #657179;
+      opacity: 1;
+    }
+    .assigned-tab.has-allocations:not(.compact-done) {
+      background: var(--allocation-tint);
+      border-color: var(--allocation-border);
+    }
+    .assigned-tab.has-allocations.soft-blue {
+      background: var(--allocation-bg);
+    }
+    .assigned-tab.has-allocations.compact-done {
+      background: var(--allocation-completed);
+    }
+    .assigned-tab.material-done,
+    .assigned-tab.has-allocations.material-done {
+      background: #ffffff;
     }
     .assignment-topline {
       display: flex;
@@ -621,24 +733,24 @@
       font-weight: 400;
     }
     .status-btn.completed.active {
-      background: #1e3a8a;
-      border-color: #1e3a8a;
-      color: #ffffff;
+      background: #f6f7f8;
+      border-color: #dce2e5;
+      color: #66727a;
       font-weight: 400;
     }
     .status-btn.done.active,
     .status-btn.delivered.active {
-      background: #1e3a8a;
-      border-color: #1e3a8a;
-      color: #ffffff;
+      background: #f6f7f8;
+      border-color: #dce2e5;
+      color: #66727a;
       font-weight: 400;
     }
     .status-btn.passed.active,
     .status-btn.paper_pass.active,
     .status-btn.final_pass.active {
-      background: #fdf2f8;
-      border-color: #f9a8d4;
-      color: #be185d;
+      background: #f6f7f8;
+      border-color: #dce2e5;
+      color: #66727a;
       font-weight: 400;
     }
     .status-menu {
@@ -2723,6 +2835,17 @@
     function assignmentStatus(company, grantId) {
       return normalizeAssignmentStatus(company.assignmentStatuses?.[grantId] || "request");
     }
+    function grantAllocationStyle(count) {
+      if (!count) return undefined;
+      const lightness = 82 + 16 * Math.exp(-(count - 1) / 5);
+      const yellow = (value) => `hsl(52, 82%, ${value.toFixed(2)}%)`;
+      return {
+        "--allocation-bg": yellow(lightness),
+        "--allocation-border": yellow(lightness - 5),
+        "--allocation-tint": yellow(100 - (100 - lightness) * 0.5),
+        "--allocation-completed": yellow(100 - (100 - lightness) * 0.14)
+      };
+    }
     function assignmentResult(company, grantId) {
       return company.assignmentResults?.[grantId] || "";
     }
@@ -3533,6 +3656,7 @@
       const [saveStatus, setSaveStatus] = useState({ state: "idle", text: "저장 대기" });
       const [highlightGrantId, setHighlightGrantId] = useState("");
       const [selectedGrantId, setSelectedGrantId] = useState("");
+      const [expandedGrantId, setExpandedGrantId] = useState("");
       const [editingGrant, setEditingGrant] = useState(null);
       const [viewingGrant, setViewingGrant] = useState(null);
       const [editingCompany, setEditingCompany] = useState(null);
@@ -3543,11 +3667,12 @@
       const [meetingForm, setMeetingForm] = useState(null);
       const [activeCompanyTab, setActiveCompanyTab] = useState("all");
       const [showPastGrants, setShowPastGrants] = useState(false);
+      const [boardDate, setBoardDate] = useState(todayKey);
       const [schedules, setSchedules] = useState([]);
       const [logs, setLogs] = useState([]);
       const [companyOrder, setCompanyOrder] = useState(() => seedCompanies.map((company) => company.id));
       const [schedulePick, setSchedulePick] = useState(null);
-      const [calendarHeight, setCalendarHeight] = useState(300);
+      const [calendarHeight, setCalendarHeight] = useState(240);
       const [showFullCalendar, setShowFullCalendar] = useState(false);
       const [fullCalendarBase, setFullCalendarBase] = useState(todayKey());
       const [loaded, setLoaded] = useState(false);
@@ -3560,6 +3685,17 @@
       const scheduleClickBlockRef = useRef("");
       const saveRequestRef = useRef(0);
       const companyOrderKey = companyOrder.join("|");
+      useEffect(() => {
+        const refreshDate = () => setBoardDate(todayKey());
+        const timer = window.setInterval(refreshDate, 60000);
+        window.addEventListener("focus", refreshDate);
+        document.addEventListener("visibilitychange", refreshDate);
+        return () => {
+          window.clearInterval(timer);
+          window.removeEventListener("focus", refreshDate);
+          document.removeEventListener("visibilitychange", refreshDate);
+        };
+      }, []);
       function scrollCompanyBoardStart() {
         return;
       }
@@ -3576,7 +3712,10 @@
             setCompanyOrder(reconcileCompanyOrder(saved.companyOrder, normalizedCompanies));
             setSchedules(saved.schedules || []);
             setLogs(saved.logs || []);
-            if (saved.calendarHeight) setCalendarHeight(Math.max(300, saved.calendarHeight));
+            const savedCalendarHeight = Number(saved.calendarHeight);
+            if (Number.isFinite(savedCalendarHeight) && savedCalendarHeight > 0) {
+              setCalendarHeight(Math.max(80, Math.min(240, savedCalendarHeight)));
+            }
             setStorageReady(true);
           } else {
             setStorageReady(false);
@@ -3619,13 +3758,32 @@
       }, [toast]);
       const grantMap = useMemo(() => Object.fromEntries(grants.map((grant) => [grant.id, grant])), [grants]);
       const calendarDays = useMemo(() => workdayCalendarKeys(), []);
+      const grantAllocations = useMemo(() => {
+        const assignments = new Map();
+        const seenCompanyIds = new Set();
+        for (const company of companies) {
+          if (seenCompanyIds.has(company.id)) continue;
+          seenCompanyIds.add(company.id);
+          for (const grantId of new Set(company.assignedGrantIds || [])) {
+            if (!assignments.has(grantId)) assignments.set(grantId, []);
+            assignments.get(grantId).push({
+              id: company.id,
+              name: company.name,
+              status: assignmentStatus(company, grantId)
+            });
+          }
+        }
+        return assignments;
+      }, [companies]);
       const fullCalendarDays = useMemo(() => monthCalendarKeys(fullCalendarBase), [fullCalendarBase]);
       const visibleGrants = useMemo(() => {
         const q = query.trim().toLowerCase();
         const filtered = grants.filter((grant) => {
           const diff = dayDiff(grant.deadline);
-          if (!showPastGrants && diff !== null && diff < 0) return false;
-          if (showPastGrants && !(diff !== null && diff < 0)) return false;
+          const allocations = grantAllocations.get(grant.id) || [];
+          const allFinished = allocations.length > 0 && allocations.every((company) => isFinishedAssignmentStatus(company.status));
+          const isOverdue = diff !== null && (diff < 0 || (diff <= 2 && (allocations.length === 0 || allFinished)));
+          if (showPastGrants !== isOverdue) return false;
           if (!q) return true;
           return [grant.title, grant.region, grant.condition, grant.budget].join(" ").toLowerCase().includes(q);
         }).sort((a, b) => (a.deadline || "9999-12-31").localeCompare(b.deadline || "9999-12-31"));
@@ -3637,7 +3795,7 @@
           seenTitles.add(key);
           return true;
         });
-      }, [grants, query, showPastGrants]);
+      }, [grants, query, showPastGrants, grantAllocations, boardDate]);
       const groupedGrants = useMemo(() => grantCategories.map((category) => ({
         category,
         items: visibleGrants.filter((grant) => grantCategory(grant) === category)
@@ -4490,8 +4648,13 @@
               {groupedGrants.map((group) => group.items.length > 0 && (
                 <section className="grant-category" key={group.category}>
                   <div className="grant-category-title"><span>{group.category}</span></div>
-                  {group.items.map((grant) => (
-                    <div key={grant.id} role="button" tabIndex={0} ref={(node) => { grantRefs.current[grant.id] = node; }} className={`grant-tab ${selectedGrantId === grant.id ? "selected" : ""} ${highlightGrantId === grant.id ? "highlight" : ""}`} title={`지역: ${grant.region || "-"}\n조건: ${grant.condition || "-"}\n규모: ${grant.budget || "-"}\n링크: ${grant.link || "-"}`} onPointerDown={(event) => startPointerGrant(event, grant)} onDoubleClick={() => setEditingGrant(grant)}>
+                  {group.items.map((grant) => {
+                    const allocations = grantAllocations.get(grant.id) || [];
+                    const allocationStyle = grantAllocationStyle(allocations.length);
+                    const isExpanded = expandedGrantId === grant.id;
+                    return (
+                    <div className="grant-entry" key={grant.id} data-grant-id={grant.id} style={allocationStyle}>
+                    <div role="button" tabIndex={0} ref={(node) => { grantRefs.current[grant.id] = node; }} className={`grant-tab ${allocations.length ? "has-allocations" : ""} ${selectedGrantId === grant.id ? "selected" : ""} ${highlightGrantId === grant.id ? "highlight" : ""}`} title={`지역: ${grant.region || "-"}\n조건: ${grant.condition || "-"}\n규모: ${grant.budget || "-"}\n링크: ${grant.link || "-"}`} onPointerDown={(event) => startPointerGrant(event, grant)} onDoubleClick={() => setEditingGrant(grant)}>
                       {grant.link ? (
                         <a className="grant-name grant-title-link" href={safeUrl(grant.link)} target="_blank" rel="noreferrer" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => event.stopPropagation()}>{shortListTitle(grantListDisplayTitle(grant))}</a>
                       ) : (
@@ -4499,10 +4662,32 @@
                       )}
                       <span className="grant-side">
                         <span className={ddayClass(grant.deadline)}>{ddayLabel(grant.deadline)}</span>
+                        <span className="grant-actions" onPointerDown={(event) => event.stopPropagation()} onDoubleClick={(event) => event.stopPropagation()}>
                         <button className="grant-copy-tab" title="지원사업 정보 복사" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => copyGrantInfo(event, grant)}>복사</button>
+                        <button
+                          className="grant-roll-toggle"
+                          aria-label={`배정 기업 ${allocations.length}개 ${isExpanded ? "접기" : "펼치기"}`}
+                          aria-expanded={isExpanded}
+                          aria-controls={`grant-roll-${grant.id}`}
+                          title={`배정 기업 ${allocations.length}개`}
+                          onClick={(event) => { event.stopPropagation(); setExpandedGrantId(isExpanded ? "" : grant.id); }}
+                        >
+                          <span>{allocations.length}</span><span aria-hidden="true">{isExpanded ? "▴" : "▾"}</span>
+                        </button>
+                        </span>
                       </span>
                     </div>
-                  ))}
+                    {isExpanded && (
+                      <div className="grant-roll" id={`grant-roll-${grant.id}`} role="region" aria-label="배정 기업 목록">
+                        {allocations.map((company) => (
+                          <div className={`grant-roll-name ${company.status === "request" ? "recommendation" : ""}`} key={company.id} title={`${company.name} / ${statusLabel(company.status)}`}>{company.name}</div>
+                        ))}
+                        {!allocations.length && <div className="grant-roll-empty">배정된 기업이 없습니다</div>}
+                      </div>
+                    )}
+                    </div>
+                    );
+                  })}
                 </section>
               ))}
               {!visibleGrants.length && <div className="empty">표시할 지원사업이 없습니다</div>}
@@ -4591,12 +4776,14 @@
                       const deadlineDiff = dayDiff(grant.deadline);
                       const currentStatus = assignmentStatus(company, grantId);
                       const isOpenStatus = isOpenAssignmentStatus(currentStatus);
+                      const isSoftBlueStatus = isOpenStatus && ["preparing", "meeting"].includes(normalizeAssignmentStatus(currentStatus));
                       const currentStatusMenuKey = `${company.id}:${grantId}`;
                       const isStatusMenuOpen = statusMenuKey === currentStatusMenuKey;
                       const note = assignmentNote(company, grantId);
+                      const allocationCount = grantAllocations.get(grantId)?.length || 0;
                       return (
                         <React.Fragment key={grantId}>
-                          <div className={`assigned-tab ${!isOpenStatus ? "compact-done" : ""}`} data-assignment-index={index} onPointerDown={(e) => startAssignedScheduleDrag(e, company.id, grantId, grant.title)} onClick={(e) => e.stopPropagation()}>
+                          <div className={`assigned-tab ${allocationCount ? "has-allocations" : ""} ${isStatusMenuOpen ? "status-menu-open" : ""} ${isSoftBlueStatus ? "soft-blue" : ""} ${currentStatus === "material_done" ? "material-done" : ""} ${!isOpenStatus ? "compact-done" : ""}`} style={grantAllocationStyle(allocationCount)} data-assignment-index={index} onPointerDown={(e) => startAssignedScheduleDrag(e, company.id, grantId, grant.title)} onClick={(e) => e.stopPropagation()}>
                             <div className="assigned-main">
                               <div className="assignment-topline">
                                 <div className="status-toggle" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
