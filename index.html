@@ -1145,7 +1145,8 @@
       flex-direction: column;
     }
     .calendar-day:hover,
-    .calendar-day.selecting {
+    .calendar-day.selecting,
+    .full-calendar-day.selecting {
       border-color: #93b4ff;
       background: #f6f9ff;
     }
@@ -2832,6 +2833,26 @@
     function assignmentStatus(company, grantId) {
       return normalizeAssignmentStatus(company.assignmentStatuses?.[grantId] || "request");
     }
+    function confirmScheduledAssignments(companies, schedules) {
+      const scheduledGrants = new Map();
+      for (const schedule of schedules) {
+        if (schedule.type === "meeting" || !schedule.companyId || !schedule.grantId) continue;
+        if (!scheduledGrants.has(schedule.companyId)) scheduledGrants.set(schedule.companyId, new Set());
+        scheduledGrants.get(schedule.companyId).add(schedule.grantId);
+      }
+      let changed = false;
+      const next = companies.map((company) => {
+        const scheduled = scheduledGrants.get(company.id);
+        if (!scheduled) return company;
+        const requested = (company.assignedGrantIds || []).filter((grantId) => scheduled.has(grantId) && assignmentStatus(company, grantId) === "request");
+        if (!requested.length) return company;
+        changed = true;
+        const statuses = { ...(company.assignmentStatuses || {}) };
+        requested.forEach((grantId) => { statuses[grantId] = "confirmed"; });
+        return { ...company, assignmentStatuses: statuses };
+      });
+      return changed ? next : companies;
+    }
     function grantAllocationStyle(count) {
       if (!count) return undefined;
       const lightness = 82 + 16 * Math.exp(-(count - 1) / 5);
@@ -3704,7 +3725,7 @@
           if (saved?.grants && saved?.companies) {
             const normalizedCompanies = normalizeCompanyList(saved.companies);
             setGrants(saved.grants);
-            setCompanies(normalizedCompanies);
+            setCompanies(confirmScheduledAssignments(normalizedCompanies, saved.schedules || []));
             setCompanyOrder(reconcileCompanyOrder(saved.companyOrder, normalizedCompanies));
             setSchedules(saved.schedules || []);
             setLogs(saved.logs || []);
@@ -3754,6 +3775,9 @@
       }, [toast]);
       const grantMap = useMemo(() => Object.fromEntries(grants.map((grant) => [grant.id, grant])), [grants]);
       const calendarDays = useMemo(() => workdayCalendarKeys(), []);
+      const scheduledAssignmentKeys = useMemo(() => new Set(schedules
+        .filter((schedule) => schedule.type !== "meeting" && schedule.companyId && schedule.grantId)
+        .map((schedule) => `${schedule.companyId}:${schedule.grantId}`)), [schedules]);
       const grantAllocations = useMemo(() => {
         const assignments = new Map();
         const seenCompanyIds = new Set();
@@ -3915,8 +3939,14 @@
           })));
         } else if (undo.type === "addSchedule") {
           setSchedules((current) => current.filter((schedule) => schedule.id !== undo.schedule.id));
+          if (undo.previousStatus === "request" && !schedules.some((schedule) => schedule.id !== undo.schedule.id && schedule.type !== "meeting" && schedule.companyId === undo.schedule.companyId && schedule.grantId === undo.schedule.grantId)) {
+            setCompanies((current) => current.map((company) => company.id === undo.schedule.companyId && assignmentStatus(company, undo.schedule.grantId) === "confirmed"
+              ? { ...company, assignmentStatuses: { ...company.assignmentStatuses, [undo.schedule.grantId]: "request" } }
+              : company));
+          }
         } else if (undo.type === "removeSchedule") {
           setSchedules((current) => current.some((schedule) => schedule.id === undo.schedule.id) ? current : [...current, undo.schedule]);
+          setCompanies((current) => confirmScheduledAssignments(current, [undo.schedule]));
         } else if (undo.type === "moveSchedule") {
           setSchedules((current) => current.map((schedule) => schedule.id === undo.scheduleId ? { ...schedule, date: undo.previousDate } : schedule));
         } else if (undo.type === "saveCompany") {
@@ -4009,18 +4039,26 @@
       }
       function addSchedule(date) {
         if (!schedulePick) return;
-        const companyName = companies.find((company) => company.id === schedulePick.companyId)?.name || "기업";
-        const grantTitle = grantMap[schedulePick.grantId]?.title || "지원사업";
-        const exists = schedules.some((item) => item.date === date && item.companyId === schedulePick.companyId && item.grantId === schedulePick.grantId);
+        addAssignedSchedule(date, schedulePick.companyId, schedulePick.grantId);
+      }
+      function addAssignedSchedule(date, companyId, grantId) {
+        const company = companies.find((item) => item.id === companyId);
+        if (!company?.assignedGrantIds?.includes(grantId)) return;
+        const companyName = company.name || "기업";
+        const grantTitle = grantMap[grantId]?.title || "지원사업";
+        const exists = schedules.some((item) => item.type !== "meeting" && item.date === date && item.companyId === companyId && item.grantId === grantId);
         if (exists) {
           notify("이미 등록된 일정입니다");
+          setSchedulePick(null);
           return;
         }
-        const schedule = { id: uid("s"), date, companyId: schedulePick.companyId, grantId: schedulePick.grantId };
+        const schedule = { id: uid("s"), date, companyId, grantId };
+        const previousStatus = assignmentStatus(company, grantId);
         setSchedules((current) => [...current, schedule]);
+        setCompanies((current) => confirmScheduledAssignments(current, [schedule]));
         setSchedulePick(null);
         notify("일정 등록됨");
-        addLog("스케줄 등록", `${date} / ${companyName} / ${grantTitle}`, { type: "addSchedule", schedule });
+        addLog("스케줄 등록", `${date} / ${companyName} / ${grantTitle}`, { type: "addSchedule", schedule, previousStatus });
       }
       function addMeetingSchedule(date, companyId) {
         const companyName = companies.find((company) => company.id === companyId)?.name || "기업";
@@ -4427,16 +4465,7 @@
           }
           if (current.scheduleMode && current.moved && calendarDay?.dataset?.calendarDate) {
             const date = calendarDay.dataset.calendarDate;
-            const exists = schedules.some((item) => item.date === date && item.companyId === current.companyId && item.grantId === current.grantId);
-            if (exists) notify("이미 등록된 일정입니다");
-            else {
-              const companyName = companies.find((company) => company.id === current.companyId)?.name || "기업";
-              const grantTitle = grantMap[current.grantId]?.title || "지원사업";
-              const schedule = { id: uid("s"), date, companyId: current.companyId, grantId: current.grantId };
-              setSchedules((items) => [...items, schedule]);
-              notify("일정 등록됨");
-              addLog("스케줄 등록", `${date} / ${companyName} / ${grantTitle}`, { type: "addSchedule", schedule });
-            }
+            addAssignedSchedule(date, current.companyId, current.grantId);
             setDrag(null);
             return;
           }
@@ -4459,7 +4488,7 @@
           window.removeEventListener("pointerup", up);
           window.removeEventListener("pointercancel", up);
         };
-      }, [drag, grants, schedules]);
+      }, [drag, grants, schedules, companies]);
       useEffect(() => {
         if (!companyDrag) return;
         function move(event) {
@@ -4814,12 +4843,13 @@
                               </div>
                               {isOpenStatus && <div className="assigned-title">{compactAssignedTitle(grant.title)}</div>}
                             </div>
-                            {(isOpenStatus || note) && (
+                            {(isOpenStatus || note) && !scheduledAssignmentKeys.has(currentStatusMenuKey) && (
                               <button
-                                className={`assignment-note-btn ${note ? "active" : ""}`}
-                                title={note || "체크 메모 입력"}
+                                className={`assignment-note-btn ${schedulePick?.companyId === company.id && schedulePick?.grantId === grantId ? "active" : ""}`}
+                                title="스케줄 등록"
+                                aria-label="스케줄 등록"
                                 onPointerDown={(e) => e.stopPropagation()}
-                                onClick={(e) => { e.stopPropagation(); editAssignmentNote(company.id, grantId); }}
+                                onClick={(e) => { e.stopPropagation(); setSchedulePick({ companyId: company.id, grantId }); }}
                               >
                                 ✅
                               </button>
@@ -4969,7 +4999,7 @@
                     const dateSchedules = sortScheduleItems(schedules.filter((item) => item.date === date));
                     const deadlineGrants = deadlineGrantsForDate(date, grants);
                     return (
-                      <div className={`full-calendar-day ${date === todayKey() ? "today" : ""} ${isSameMonth(date, fullCalendarBase) ? "" : "out-month"} ${companyDrag?.meetingDate === date ? "meeting-target" : ""}`} key={date} data-calendar-date={date}>
+                      <div className={`full-calendar-day ${date === todayKey() ? "today" : ""} ${schedulePick ? "selecting" : ""} ${isSameMonth(date, fullCalendarBase) ? "" : "out-month"} ${companyDrag?.meetingDate === date ? "meeting-target" : ""}`} key={date} data-calendar-date={date} onClick={() => addSchedule(date)}>
                         <div className="calendar-date"><span>{shortDateLabel(date)}</span></div>
                         <div className="schedule-main-list">
                           {dateSchedules.map((item) => {
