@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Pocket CRM Schedule Bridge",
+  "version": "1.0.0",
+  "description": "Connect rendered Pocket CRM meeting schedules to the grant board.",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://crm.xn--9i1b674cwc38r6pa.com/*",
+    "https://lahae-kang.github.io/pocket-startup-grant/*"
+  ],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_popup": "popup.html", "default_title": "CRM schedule bridge" },
+  "content_scripts": [
+    {
+      "matches": ["https://crm.xn--9i1b674cwc38r6pa.com/employee/schedule/meeting*"],
+      "js": ["crm-core.js", "crm-content.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://lahae-kang.github.io/pocket-startup-grant/*"],
+      "js": ["board-content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

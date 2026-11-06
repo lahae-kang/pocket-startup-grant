@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>스타트업 지원사업 매칭 보드</title>
+  <script src="./crm-bridge-extension/crm-core.js"></script>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1125,6 +1126,14 @@
       align-items: center;
       gap: 12px;
     }
+    .crm-connect-status { font-size: 11px; color: #73808a; }
+    .crm-connect-status.error { color: #b42318; }
+    .crm-sync-list { max-height: 220px; overflow: auto; margin-top: 8px; }
+    .crm-sync-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #e5e9ec; font-size: 12px; }
+    .crm-sync-row > span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+    .crm-sync-row select { width: 190px; max-width: 50%; min-width: 0; font: inherit; }
+    .crm-sync-section { margin-top: 16px; border-top: 1px solid #e5e9ec; padding-top: 10px; }
+    .crm-sync-section h3 { margin: 0 0 6px; font-size: 13px; font-weight: 500; }
     .calendar-grid {
       flex: 1;
       overflow: auto;
@@ -3019,6 +3028,32 @@
         return { ok: false, remote: false, fallback: false, error };
       }
     }
+    const crmCore = window.PocketCRM;
+    const CRM_STORAGE_KEY = `${STORAGE_KEY}:crm-meetings-v1`;
+    async function readCrmData() {
+      if (!crmCore) throw new Error("CRM 연결 파일을 불러오지 못했습니다");
+      if (supabaseClient) {
+        const result = await withTimeout(supabaseClient.from("app_state").select("data").eq("id", CRM_STORAGE_KEY).maybeSingle());
+        if (!result || result.error) throw new Error("CRM 서버 데이터를 불러오지 못했습니다");
+        const data = crmCore.state(result.data?.data);
+        Object.defineProperty(data, "_crmRowExists", { value: !!result.data });
+        return data;
+      }
+      const value = await (window.storage || memoryStorage).get(CRM_STORAGE_KEY);
+      const data = crmCore.state(typeof value === "string" ? JSON.parse(value) : value);
+      Object.defineProperty(data, "_crmRowExists", { value: value !== null && value !== undefined });
+      return data;
+    }
+    async function writeCrmData(data, rowExists) {
+      if (supabaseClient) {
+        const record = { id: CRM_STORAGE_KEY, data, updated_at: new Date().toISOString() };
+        const query = supabaseClient.from("app_state");
+        const result = await withTimeout(rowExists ? query.upsert(record) : query.insert(record));
+        if (!result || result.error) throw new Error("CRM 서버 저장에 실패했습니다");
+      } else {
+        await (window.storage || memoryStorage).set(CRM_STORAGE_KEY, JSON.stringify(data));
+      }
+    }
     function requestedCompanyId() {
       const params = new URLSearchParams(window.location.search || "");
       const fromQuery = params.get("company") || params.get("companyId");
@@ -3685,7 +3720,18 @@
       const [activeCompanyTab, setActiveCompanyTab] = useState("all");
       const [showPastGrants, setShowPastGrants] = useState(false);
       const [boardDate, setBoardDate] = useState(todayKey);
-      const [schedules, setSchedules] = useState([]);
+      const [manualSchedules, setSchedules] = useState([]);
+      const [crmData, setCrmData] = useState(() => crmCore?.emptyState() || {});
+      const [crmReady, setCrmReady] = useState(false);
+      const [crmInbox, setCrmInbox] = useState(null);
+      const [crmBridgeOnline, setCrmBridgeOnline] = useState(false);
+      const [crmStatus, setCrmStatus] = useState("");
+      const [crmDraft, setCrmDraft] = useState(null);
+      const [crmSyncBusy, setCrmSyncBusy] = useState(false);
+      const crmQueueRef = useRef(Promise.resolve());
+      const crmWriteBusyRef = useRef(false);
+      const crmImportedSchedules = useMemo(() => crmCore ? crmCore.schedules(crmData, companies, manualSchedules) : [], [crmData, companies, manualSchedules]);
+      const schedules = useMemo(() => [...manualSchedules, ...crmImportedSchedules], [manualSchedules, crmImportedSchedules]);
       const [logs, setLogs] = useState([]);
       const [companyOrder, setCompanyOrder] = useState(() => seedCompanies.map((company) => company.id));
       const [schedulePick, setSchedulePick] = useState(null);
@@ -3755,7 +3801,7 @@
         saveRequestRef.current = requestId;
         setSaveStatus({ state: "saving", text: "저장 중" });
         const timer = window.setTimeout(async () => {
-          const result = await storageWrite({ grants, companies, schedules, logs, calendarHeight, companyOrder });
+          const result = await storageWrite({ grants, companies, schedules: manualSchedules, logs, calendarHeight, companyOrder });
           if (saveRequestRef.current !== requestId) return;
           if (result?.remote) {
             setSaveStatus({ state: "saved", text: "서버 저장 완료" });
@@ -3767,7 +3813,62 @@
           }
         }, 500);
         return () => window.clearTimeout(timer);
-      }, [grants, companies, schedules, logs, calendarHeight, companyOrder, loaded, storageReady]);
+      }, [grants, companies, manualSchedules, logs, calendarHeight, companyOrder, loaded, storageReady]);
+      useEffect(() => {
+        let active = true;
+        async function refresh() {
+          if (crmWriteBusyRef.current) return;
+          try {
+            const data = await readCrmData();
+            if (active && !crmWriteBusyRef.current) { setCrmData(data); setCrmReady(true); }
+          } catch (error) {
+            if (active) setCrmStatus(error.message);
+          }
+        }
+        refresh();
+        const timer = window.setInterval(refresh, 45000);
+        window.addEventListener("focus", refresh);
+        return () => { active = false; window.clearInterval(timer); window.removeEventListener("focus", refresh); };
+      }, []);
+      useEffect(() => {
+        if (!crmCore || !crmCore.boardURL(window.location.href)) return;
+        function receive(event) {
+          if (event.source !== window || event.origin !== window.location.origin || event.data?.channel !== crmCore.CHANNEL) return;
+          if (event.data.type === "CRM_BRIDGE_READY") setCrmBridgeOnline(true);
+          if (event.data.type === "CRM_SNAPSHOT") {
+            const snapshot = crmCore.sanitizeSnapshot(event.data.snapshot);
+            if (snapshot) setCrmInbox(current => current?.id === snapshot.id ? current : snapshot);
+          }
+        }
+        window.addEventListener("message", receive);
+        window.postMessage({ channel: crmCore.CHANNEL, type: "CRM_BOARD_READY" }, window.location.origin);
+        return () => window.removeEventListener("message", receive);
+      }, []);
+      const crmConfigKey = JSON.stringify([crmData.enabled, crmData.staffFilter, crmData.aliases]);
+      const crmCompanyKey = JSON.stringify(companies.map(company => [company.id, company.name, company.contractEnded]));
+      const crmManualKey = JSON.stringify(manualSchedules.map(item => [item.id, item.companyId, item.date, item.time, item.kind]));
+      useEffect(() => {
+        if (!crmReady || !loaded || !storageReady || !crmData.enabled || !crmInbox) return;
+        commitCrmData(current => crmCore.merge(current, crmInbox, companies, manualSchedules)).catch(() => {});
+      }, [crmReady, loaded, storageReady, crmInbox, crmConfigKey, crmCompanyKey, crmManualKey]);
+      function commitCrmData(transform) {
+        const run = async () => {
+          crmWriteBusyRef.current = true;
+          setCrmSyncBusy(true);
+          try {
+            const current = await readCrmData();
+            const next = transform(current);
+            if (JSON.stringify(next) !== JSON.stringify(current)) await writeCrmData(next, current._crmRowExists);
+            setCrmData(next);
+            setCrmStatus("CRM 저장 완료");
+            return next;
+          } catch (error) { setCrmStatus(error.message); throw error; }
+          finally { crmWriteBusyRef.current = false; setCrmSyncBusy(false); }
+        };
+        const operation = crmQueueRef.current.then(run, run);
+        crmQueueRef.current = operation.catch(() => {});
+        return operation;
+      }
       useEffect(() => {
         if (!toast) return;
         const timer = window.setTimeout(() => setToast(""), 1800);
@@ -4218,6 +4319,7 @@
         return companies.some((company) => (company.assignedGrantIds || []).includes(grantId) && isOpenAssignmentStatus(assignmentStatus(company, grantId)));
       }
       function startScheduleMove(event, schedule) {
+        if (crmCore && schedule.externalSource === crmCore.CHANNEL) return;
         if (event.target?.closest?.("button, a, input, textarea, label")) return;
         event.preventDefault();
         event.stopPropagation();
@@ -4227,6 +4329,7 @@
       }
       function removeSchedule(id) {
         const schedule = schedules.find((item) => item.id === id);
+        if (crmCore && schedule?.externalSource === crmCore.CHANNEL) { setCrmDraft({ enabled: !!crmData.enabled, staffFilter: crmData.staffFilter || "", aliases: { ...crmData.aliases } }); return; }
         if (schedule) {
           const companyName = companies.find((company) => company.id === schedule.companyId)?.name || "기업";
           const scheduleTitle = schedule.type === "meeting" ? `${schedule.time ? `${schedule.time} ` : ""}${scheduleKindLabel(schedule.kind || "meeting")} ${companyName}`.trim() : grantMap[schedule.grantId]?.title || "지원사업";
@@ -4876,6 +4979,7 @@
                 <div className="schedule-title-row">
                   <h2 className="title">스케줄</h2>
                   <button className="schedule-copy-tab" onClick={copyTodaySchedules}>복사</button>
+                  <button className="schedule-copy-tab" title="CRM 일정 연결" onClick={() => setCrmDraft({ enabled: !!crmData.enabled, staffFilter: crmData.staffFilter || "", aliases: { ...crmData.aliases } })}>CRM</button>
                 </div>
                 <div className="board-actions">
                   <button className="calendar-icon-btn" title="전체 달력" onClick={() => setShowFullCalendar(true)}>▦</button>
@@ -4897,7 +5001,7 @@
                           if (item.type === "meeting") {
                             const meetingKind = normalizeScheduleKind(item.kind) || "meeting";
                             return (
-                              <div className={`schedule-item schedule-meeting ${meetingKind === "ir" || meetingKind === "work" ? "schedule-ir" : ""}`} key={item.id} title="드래그하면 이동, 클릭하면 삭제" onPointerDown={(e) => startScheduleMove(e, item)} onClick={(e) => { e.stopPropagation(); if (scheduleClickBlockRef.current === item.id) return; removeSchedule(item.id); }}>
+                              <div className={`schedule-item schedule-meeting ${meetingKind === "ir" || meetingKind === "work" ? "schedule-ir" : ""}`} key={item.id} title={item.externalSource ? `CRM 연동${item.missing ? " · 화면에서 확인되지 않음" : ""}` : "드래그하면 이동, 클릭하면 삭제"} onPointerDown={(e) => startScheduleMove(e, item)} onClick={(e) => { e.stopPropagation(); if (scheduleClickBlockRef.current === item.id) return; removeSchedule(item.id); }}>
                                 {item.time && <span className="meeting-time">{item.time}</span>}
                                 {meetingKind !== "work" && <span className="meeting-kind">{scheduleKindLabel(meetingKind)}</span>}
                                 <span className="meeting-title">{meetingKind === "work" ? `${company.name} · ${item.title || "작업"}` : company.name}</span>
@@ -4982,6 +5086,34 @@
               </div>
             </div>
           )}
+          {crmDraft && (() => {
+            const preview = crmCore?.preview({ ...crmData, ...crmDraft }, crmInbox, companies) || { matched: [], unmatched: [] };
+            const mappingNames = [...new Set([...(crmInbox?.entries || []).filter(entry => crmCore?.matchesStaff(entry, crmDraft.staffFilter)).map(entry => entry.company), ...Object.keys(crmDraft.aliases)])];
+            const missing = (crmData.entries || []).filter(entry => entry.missing && !(crmData.ignoredKeys || []).includes(entry.externalKey));
+            const hidden = (crmData.entries || []).filter(entry => (crmData.ignoredKeys || []).includes(entry.externalKey));
+            return (
+              <div className="modal-backdrop" onClick={() => setCrmDraft(null)}>
+                <div className="modal" style={{ width: "600px" }} onClick={event => event.stopPropagation()}>
+                  <h2>CRM 일정 연결</h2>
+                  <div className="crm-connect-status">{crmBridgeOnline ? "확장 프로그램 연결됨" : "확장 프로그램 연결 대기"}</div>
+                  <div className="form-grid" style={{ marginTop: "14px" }}>
+                    <label className="toggle-label"><input type="checkbox" checked={crmDraft.enabled} onChange={event => setCrmDraft({ ...crmDraft, enabled: event.target.checked })} />자동 연동</label>
+                    <Field label="담당자"><input value={crmDraft.staffFilter} placeholder="전체 담당자" onChange={event => setCrmDraft({ ...crmDraft, staffFilter: event.target.value })} /></Field>
+                  </div>
+                  <div className="crm-sync-section">
+                    <h3>최근 화면 · {crmInbox ? `${crmInbox.entries.length}개` : "대기"}</h3>
+                    <div className="subtle">{crmInbox ? crmInbox.dates.join(" / ") : "-"}</div>
+                    <div className="crm-connect-status">연결 가능 {preview.matched.length}개 · 저장된 미팅 {crmImportedSchedules.length}개</div>
+                  </div>
+                  {mappingNames.length > 0 && <div className="crm-sync-section"><h3>기업 연결</h3><div className="crm-sync-list">{mappingNames.map(name => <div className="crm-sync-row" key={name}><span>{name}</span><select aria-label={`${name} 기업 연결`} value={crmDraft.aliases[name] || crmCore?.findCompany({ company: name }, companies, {})?.id || ""} onChange={event => setCrmDraft({ ...crmDraft, aliases: { ...crmDraft.aliases, [name]: event.target.value } })}><option value="">미연결</option><option value="-">제외</option>{companies.filter(company => !company.contractEnded).map(company => <option key={company.id} value={company.id}>{company.name}</option>)}</select></div>)}</div></div>}
+                  {missing.length > 0 && <div className="crm-sync-section"><h3>화면에서 확인되지 않은 미팅</h3><div className="crm-sync-list">{missing.map(entry => <div className="crm-sync-row" key={entry.id}><span>{entry.date} {entry.time} · {entry.company}</span><button className="text-btn" disabled={crmSyncBusy} onClick={() => commitCrmData(current => ({ ...current, ignoredKeys: [...new Set([...current.ignoredKeys, entry.externalKey])] })).catch(() => {})}>숨김</button></div>)}</div></div>}
+                  {hidden.length > 0 && <div className="crm-sync-section"><h3>숨긴 미팅</h3><div className="crm-sync-list">{hidden.map(entry => <div className="crm-sync-row" key={entry.id}><span>{entry.date} {entry.time} · {entry.company}</span><button className="text-btn" disabled={crmSyncBusy} onClick={() => commitCrmData(current => ({ ...current, ignoredKeys: current.ignoredKeys.filter(key => key !== entry.externalKey) })).catch(() => {})}>복원</button></div>)}</div></div>}
+                  <div className={`crm-connect-status ${crmStatus.includes("실패") || crmStatus.includes("못") ? "error" : ""}`} style={{ marginTop: "14px" }}>{crmStatus || (crmReady ? "연결 준비됨" : "서버 확인 중")}</div>
+                  <div className="modal-actions"><a href="./crm-bridge-extension/setup.html" target="_blank" rel="noreferrer" className="text-btn" style={{ display: "inline-flex", alignItems: "center", textDecoration: "none" }}>연결 프로그램 설치</a><div className="action-right"><button className="text-btn" disabled={!crmReady || !crmInbox || !crmData.enabled || crmSyncBusy} onClick={() => commitCrmData(current => crmCore.merge(current, crmInbox, companies, manualSchedules)).catch(() => {})}>동기화</button><button className="text-btn" onClick={() => setCrmDraft(null)}>닫기</button><button className="text-btn primary" disabled={!crmReady || !storageReady || crmSyncBusy} onClick={async () => { try { await commitCrmData(current => ({ ...current, ...crmDraft })); setCrmDraft(null); } catch {} }}>{crmSyncBusy ? "저장 중" : "저장"}</button></div></div>
+                </div>
+              </div>
+            );
+          })()}
           {showFullCalendar && (
             <div className="modal-backdrop">
               <div className="modal" style={{ width: "900px" }}>
@@ -5009,7 +5141,7 @@
                             if (item.type === "meeting") {
                               const meetingKind = normalizeScheduleKind(item.kind) || "meeting";
                               return (
-                                <div className={`schedule-item schedule-meeting ${meetingKind === "ir" || meetingKind === "work" ? "schedule-ir" : ""}`} key={item.id} title="드래그하면 일정 이동" onPointerDown={(e) => startScheduleMove(e, item)} onClick={(e) => e.stopPropagation()}>
+                                <div className={`schedule-item schedule-meeting ${meetingKind === "ir" || meetingKind === "work" ? "schedule-ir" : ""}`} key={item.id} title={item.externalSource ? "CRM 연동 일정" : "드래그하면 일정 이동"} onPointerDown={(e) => startScheduleMove(e, item)} onClick={(e) => e.stopPropagation()}>
                                   {item.time && <span className="meeting-time">{item.time}</span>}
                                   {meetingKind !== "work" && <span className="meeting-kind">{scheduleKindLabel(meetingKind)}</span>}
                                   <span className="meeting-title">{meetingKind === "work" ? `${company.name} · ${item.title || "작업"}` : company.name}</span>
